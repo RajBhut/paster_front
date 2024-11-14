@@ -1,43 +1,52 @@
-import React from "react";
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
+import { Usercontext } from "./UsrProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function Loginc() {
+  const { setuser } = useContext(Usercontext);
   const [error, seterror] = useState("");
   const [loading, setloading] = useState(false);
-  const [Email, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [mode, setmode] = useState("signup");
   const [confirmPassword, setconfirmPassword] = useState("");
-  const login = async () => {
+  const navigate = useNavigate();
+
+  const loginOrSignup = async () => {
     setloading(true);
 
-    if (mode === "signup") {
-      seterror("");
-      try {
-        const res = await fetch("http://localhost:5000/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Email,
-            password,
-          }),
-        });
-        const data = await res.json();
-        setloading(false);
-        if (data.error) {
-          seterror(data.error);
-        } else {
-          console.log(data);
-        }
-      } catch (error) {
-        console.log(error);
-        setloading(false);
-        seterror("something went wrong");
+    if (mode === "signup" && password !== confirmPassword) {
+      seterror("Passwords do not match");
+      setloading(false);
+      return;
+    }
+
+    const endpoint = mode === "signup" ? "/user" : "/user/login";
+    try {
+      const res = await fetch(`http://localhost:3000${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      const data = await res.json();
+      setloading(false);
+
+      if (data.error) {
+        seterror(data.error);
+      } else {
+        setuser(data);
+        localStorage.setItem("user", JSON.stringify(data));
+        navigate("/home");
       }
-    } else {
-      seterror("");
+    } catch (error) {
+      setloading(false);
+      seterror("Something went wrong");
+      console.log(error);
     }
   };
 
@@ -45,59 +54,55 @@ export default function Loginc() {
     <div
       style={{
         display: "flex",
-        "flex-direction": "column",
-        "align-items": "center",
-        "justify-content": "center",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         height: "100vh",
       }}
     >
       <div
         style={{
           display: "flex",
-          "flex-direction": "column",
-          "align-items": "center",
-          "justify-content": "center",
+          flexDirection: "column",
+          alignItems: "center",
           gap: "10px",
           border: "1px solid black",
           padding: "10px",
-          "border-radius": "10px",
+          borderRadius: "10px",
         }}
       >
         <input
-          type="text"
+          type="email"
           placeholder="Email"
-          value={Email}
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
           placeholder="Password"
-          value={Password}
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {mode != "signup" && (
+        {mode === "signup" && (
           <input
-            type="text"
-            placeholder="confirm password"
+            type="password"
+            placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setconfirmPassword(e.target.value)}
           />
         )}
-
-        <button onClick={login}>Enter</button>
-      </div>
-      <div>
-        <button
-          onClick={() =>
-            setmode((prv) => {
-              if (prv == "signup") return "login";
-              else return "signup";
-            })
-          }
-        >
-          {mode}
+        <button onClick={loginOrSignup}>
+          {loading ? "Loading..." : mode === "signup" ? "Sign Up" : "Log In"}
         </button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
+      <button
+        onClick={() =>
+          setmode((prev) => (prev === "signup" ? "login" : "signup"))
+        }
+      >
+        Switch to {mode === "signup" ? "Login" : "Sign Up"}
+      </button>
     </div>
   );
 }

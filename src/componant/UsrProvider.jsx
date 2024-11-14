@@ -1,11 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
-const Usercontext = createContext();
-export default function UsrProvider({ children }) {
-  const [user, setuser] = useState(null);
+import React, { createContext, useState } from "react";
+
+export const Usercontext = createContext();
+
+export default function UserProvide({ children }) {
+  const [user, setuser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   return (
     <Usercontext.Provider value={{ user, setuser }}>
       {children}
     </Usercontext.Provider>
   );
 }
-export { Usercontext };
