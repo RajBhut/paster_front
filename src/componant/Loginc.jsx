@@ -8,6 +8,7 @@ export default function Loginc() {
   const [loading, setloading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [mode, setmode] = useState("signup");
   const [confirmPassword, setconfirmPassword] = useState("");
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function Loginc() {
       return;
     }
 
-    const endpoint = mode === "signup" ? "/user" : "/user/login";
+    const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
       const res = await fetch(`http://localhost:3000${endpoint}`, {
         method: "POST",
@@ -31,6 +32,7 @@ export default function Loginc() {
         body: JSON.stringify({
           email,
           password,
+          name,
         }),
       });
       const data = await res.json();
@@ -84,12 +86,20 @@ export default function Loginc() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {mode === "signup" && (
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setconfirmPassword(e.target.value)}
-          />
+          <>
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setconfirmPassword(e.target.value)}
+            />
+          </>
         )}
         <button onClick={loginOrSignup}>
           {loading ? "Loading..." : mode === "signup" ? "Sign Up" : "Log In"}

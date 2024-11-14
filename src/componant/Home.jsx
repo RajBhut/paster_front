@@ -366,6 +366,8 @@ export default function Home() {
       <input
         type="text"
         placeholder="Enter title"
+        value={title}
+        onChange={(e) => settitle(e.target.value)}
         style={{ padding: "10px 10px", fontSize: "large" }}
       />
       <div className="container">
@@ -377,7 +379,6 @@ export default function Home() {
           ></textarea>
           <button onClick={addPost}>Add</button>
         </div>
-
         <div className="settings">
           <label>
             Language:
@@ -404,17 +405,15 @@ export default function Home() {
             </select>
           </label>
         </div>
-
-        <div className="data">
-          {data.map((post, index) => (
-            <div key={index} className="card">
-              <h3>{post.title}</h3>
-              <p>{post.content}</p>
-            </div>
-          ))}
-          <CodeComponent text={text} language={language} style={style} />
-        </div>
+        <div className="data"></div>{" "}
       </div>
+      <CodeComponent text={text} language={language} style={style} />
+      {data.map((post, index) => (
+        <div key={index} className="card" style={{ color: "black" }}>
+          <h3>{post.title}</h3>
+          <p>{post.content}</p>
+        </div>
+      ))}
     </>
   );
 }
