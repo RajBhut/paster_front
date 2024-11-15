@@ -329,6 +329,7 @@ export default function Home() {
       try {
         const res = await fetch("https://past-back.vercel.app/post", {
           method: "POST",
+          mode: "no-cors",
           headers: {
             "Content-Type": "application/json",
           },
@@ -349,7 +350,13 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch("https://past-back.vercel.app/post");
+        const res = await fetch("https://past-back.vercel.app/post", {
+          method: "GET",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const data = await res.json();
         setData(data);
       } catch (error) {
