@@ -1,10 +1,30 @@
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
 .container {
   display: flex;
   justify-content: center;
   flex-direction: row;
-  height: 100vh;
+  height: 40vh;
   background-color: #f1f1f1;
   width: 100vw;
+}
+.settings {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+  align-items: center;
+}
+header {
+  height: 80px;
+  font-size: medium;
+}
+h1 {
+  text-align: center;
+  font-size: x-large;
 }
 .add {
   display: flex;
@@ -12,17 +32,27 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 40%;
+  height: 100%;
   background-color: #fff;
-  border-radius: 10px;
+  border: 1px solid #1a1818;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+.side {
+  display: flex;
+  height: 100%;
+  overflow-y: scroll;
+  width: 30%;
+  border: 1px solid black;
+  padding: 10px 5px;
+}
+
 textarea {
-  max-width: 98%;
-  width: 90%;
+  margin: 0 15px;
+  max-width: 100%;
+  width: 100%;
   overflow: hidden;
   height: 60%;
-  margin: 10px;
+  margin-bottom: 5px;
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #000;
@@ -35,45 +65,24 @@ textarea {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 60%;
+  height: 20%;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: none;
 }
 .cards {
   display: flex;
-  flex-wrap: wrap;
+
+  flex-direction: column;
   justify-content: center;
   gap: 10px;
-  width: 100px;
-  height: 100px;
-
-  padding: 10px;
-  background-color: #1a1818;
-}
-.home-container {
-  transition: all 0.3s ease;
-}
-
-.home-container.expanded .add,
-.home-container.expanded .data > .card,
-.home-container.expanded .controls {
-  display: none;
-}
-
-.home-container.expanded {
   width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+  margin: 2px 5px;
 
-.data {
-  margin-top: 20px;
-}
-
-.controls {
-  margin: 10px 0;
+  height: 20px;
+  overflow: initial;
+  padding: 10px;
+  box-shadow: 10px 0px 10px 1px black;
+  background-color: #eadcdc;
 }

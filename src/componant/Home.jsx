@@ -4,6 +4,7 @@ import { Usercontext } from "./UsrProvider";
 import "./Home.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { div } from "framer-motion/client";
 
 const languages = [
   "oneC",
@@ -302,11 +303,9 @@ const styles = [
 const CodeComponent = ({ text, language, style }) => {
   const selectedStyle = hljsStyles[style] || hljsStyles.docco;
   return (
-    <div style={{ width: "100%", minHeight: "100%" }}>
-      <SyntaxHighlighter language={language} style={selectedStyle}>
-        {text}
-      </SyntaxHighlighter>
-    </div>
+    <SyntaxHighlighter wrapLongLines language={language} style={selectedStyle}>
+      {text}
+    </SyntaxHighlighter>
   );
 };
 
@@ -362,15 +361,18 @@ export default function Home() {
   });
   return (
     <>
-      <h1>Home</h1>
-      <input
-        type="text"
-        placeholder="Enter title"
-        value={title}
-        onChange={(e) => settitle(e.target.value)}
-        style={{ padding: "10px 10px", fontSize: "large" }}
-      />
-      <div className="container">
+      <header>
+        <h1>Home</h1>
+        <input
+          type="text"
+          placeholder="Enter title"
+          value={title}
+          onChange={(e) => settitle(e.target.value)}
+          style={{ padding: "10px 10px", fontSize: "large" }}
+        />
+      </header>
+
+      <div className="container" style={{ backgroundColor: "blue" }}>
         <div className="add">
           <textarea
             ref={textarea}
@@ -379,41 +381,46 @@ export default function Home() {
           ></textarea>
           <button onClick={addPost}>Add</button>
         </div>
-        <div className="settings">
-          <label>
-            Language:
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Style:
-            <select value={style} onChange={(e) => setStyle(e.target.value)}>
-              {styles.map((sty) => (
-                <option key={sty} value={sty}>
-                  {sty}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="side" style={{ backgroundColor: "white" }}>
+          <div className="data">
+            {data.map((post, index) => (
+              <div key={index} className="cards" style={{ color: "black" }}>
+                <h3>{post.title}</h3>
+                {/* <p>{post.content}</p> */}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="data"></div>{" "}
       </div>
-      <CodeComponent text={text} language={language} style={style} />
-      {data.map((post, index) => (
-        <div key={index} className="card" style={{ color: "black" }}>
-          <h3>{post.title}</h3>
-          <p>{post.content}</p>
-        </div>
-      ))}
+      <div className="settings">
+        <label>
+          Language:
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            {languages.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Style:
+          <select value={style} onChange={(e) => setStyle(e.target.value)}>
+            {styles.map((sty) => (
+              <option key={sty} value={sty}>
+                {sty}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <div className="pre">
+        <CodeComponent text={text} language={language} style={style} />
+      </div>
     </>
   );
 }
