@@ -26,6 +26,7 @@ export default function Loginc() {
     try {
       const res = await fetch(`https://past-back.vercel.app${endpoint}`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

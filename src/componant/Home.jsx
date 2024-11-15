@@ -329,7 +329,7 @@ export default function Home() {
       try {
         const res = await fetch("https://past-back.vercel.app/post", {
           method: "POST",
-
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -352,7 +352,7 @@ export default function Home() {
       try {
         const res = await fetch("https://past-back.vercel.app/post", {
           method: "GET",
-
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

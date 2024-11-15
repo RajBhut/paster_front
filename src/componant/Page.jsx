@@ -24,7 +24,7 @@ export default function Page() {
   const fatch = async () => {
     const res = await fetch(`https://past-back.vercel.app/post/${id}`, {
       method: "GET",
-
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
