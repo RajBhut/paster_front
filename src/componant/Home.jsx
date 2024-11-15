@@ -339,11 +339,15 @@ export default function Home() {
         //     userId: user.id,
         //   }),
         // });
-        const res = await axios.post("https://past-back.vercel.app/post", {
-          title: title,
-          content: text,
-          userId: user.id,
-        });
+        const res = await axios.post(
+          "https://past-back.vercel.app/post",
+          {
+            title: title,
+            content: text,
+            userId: user.id,
+          },
+          { withCredentials: true }
+        );
         const newData = await res.json();
         setData([...data, newData]);
         textarea.current.value = "";
@@ -362,7 +366,9 @@ export default function Home() {
         //     "Content-Type": "application/json",
         //   },
         // });
-        const res = await axios.get("https://past-back.vercel.app/post");
+        const res = await axios.get("https://past-back.vercel.app/post", {
+          withCredentials: true,
+        });
         const data = await res.json();
         setData(data);
       } catch (error) {

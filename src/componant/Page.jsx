@@ -22,7 +22,9 @@ export default function Page() {
     }
   }, []);
   const fatch = async () => {
-    const res = await axios.get(`https://past-back.vercel.app/post/${id}`);
+    const res = await axios.get(`https://past-back.vercel.app/post/${id}`, {
+      withCredentials: true,
+    });
 
     const data = await res.json();
     if (data.message) {
