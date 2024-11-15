@@ -1,10 +1,9 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
 import "./Home.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { div } from "framer-motion/client";
 
 const languages = [
   "oneC",
@@ -300,10 +299,15 @@ const styles = [
   "zenburn",
 ];
 
-const CodeComponent = ({ text, language, style }) => {
+export const CodeComponent = ({ text, language, style }) => {
   const selectedStyle = hljsStyles[style] || hljsStyles.docco;
   return (
-    <SyntaxHighlighter wrapLongLines language={language} style={selectedStyle}>
+    <SyntaxHighlighter
+      customStyle={{ minHeight: "40vh", padding: "20px", minWidth: "50vw" }}
+      wrapLongLines
+      language={language}
+      style={selectedStyle}
+    >
       {text}
     </SyntaxHighlighter>
   );
@@ -360,20 +364,24 @@ export default function Home() {
     }
   });
   return (
-    <>
-      <header>
+    <div className="home">
+      <header
+        style={{
+          minHeight: "fit-content",
+        }}
+      >
         <h1>Home</h1>
-        <input
-          type="text"
-          placeholder="Enter title"
-          value={title}
-          onChange={(e) => settitle(e.target.value)}
-          style={{ padding: "10px 10px", fontSize: "large" }}
-        />
       </header>
 
-      <div className="container" style={{ backgroundColor: "blue" }}>
+      <div className="container">
         <div className="add">
+          <input
+            type="text"
+            placeholder="Enter title"
+            value={title}
+            onChange={(e) => settitle(e.target.value)}
+            style={{ padding: "10px 10px", fontSize: "large" }}
+          />
           <textarea
             ref={textarea}
             onChange={(e) => setText(e.currentTarget.value)}
@@ -381,17 +389,18 @@ export default function Home() {
           ></textarea>
           <button onClick={addPost}>Add</button>
         </div>
-        <div className="side" style={{ backgroundColor: "white" }}>
-          <div className="data">
-            {data.map((post, index) => (
+
+        <div className="data">
+          {data.map((post, index) => (
+            <Link key={index} to={`/page/${post.id}`}>
               <div key={index} className="cards" style={{ color: "black" }}>
-                <h3>{post.title}</h3>
-                {/* <p>{post.content}</p> */}
+                <h4>{post.title}</h4>
               </div>
-            ))}
-          </div>
+            </Link>
+          ))}
         </div>
       </div>
+
       <div className="settings">
         <label>
           Language:
@@ -421,6 +430,6 @@ export default function Home() {
       <div className="pre">
         <CodeComponent text={text} language={language} style={style} />
       </div>
-    </>
+    </div>
   );
 }

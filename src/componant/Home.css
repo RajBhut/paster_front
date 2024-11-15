@@ -1,88 +1,58 @@
 body {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  margin: 0;
 }
 .container {
   display: flex;
-  justify-content: center;
-  flex-direction: row;
-  height: 40vh;
-  background-color: #f1f1f1;
   width: 100vw;
+}
+select {
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #000;
+  margin: 10px 0;
+  padding: 5px;
 }
 .settings {
   display: flex;
-  gap: 50px;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-evenly;
 }
 header {
-  height: 80px;
-  font-size: medium;
 }
 h1 {
-  text-align: center;
-  font-size: x-large;
 }
 .add {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   width: 100%;
-  height: 100%;
-  background-color: #fff;
-  border: 1px solid #1a1818;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 40vh;
 }
 .side {
-  display: flex;
-  height: 100%;
-  overflow-y: scroll;
-  width: 30%;
-  border: 1px solid black;
-  padding: 10px 5px;
 }
 
 textarea {
-  margin: 0 15px;
-  max-width: 100%;
   width: 100%;
-  overflow: hidden;
-  height: 60%;
-  margin-bottom: 5px;
-  padding: 10px;
-  border-radius: 10px;
+  height: 100%;
   border: 1px solid #000;
-  font-size: 1.5em;
-  scroll-behavior: smooth;
+  border-radius: 5px;
+  padding: 5px;
 }
 .data {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 20%;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  scrollbar-width: none;
+  background: white;
+  height: 40vh;
+  overflow: scroll;
+  width: 40%;
 }
 .cards {
   display: flex;
-
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  margin: 2px 5px;
-
-  height: 20px;
-  overflow: initial;
-  padding: 10px;
-  box-shadow: 10px 0px 10px 1px black;
-  background-color: #eadcdc;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  background-color: #928a8a;
+  padding: 5px;
+  margin: 5px;
+  height: 40px;
+  text-align: center;
+}
+.home {
+  min-height: 100vh;
+  width: 100vw;
 }
