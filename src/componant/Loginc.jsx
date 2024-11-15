@@ -67,6 +67,7 @@ export default function Loginc() {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
+        width: "100vw",
       }}
     >
       <div
@@ -78,8 +79,17 @@ export default function Loginc() {
           border: "1px solid black",
           padding: "10px",
           borderRadius: "10px",
+          padding: "40px",
         }}
       >
+        {mode === "signup" && (
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        )}
         <input
           type="email"
           placeholder="Email"
@@ -94,12 +104,6 @@ export default function Loginc() {
         />
         {mode === "signup" && (
           <>
-            <input
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
             <input
               type="password"
               placeholder="Confirm Password"

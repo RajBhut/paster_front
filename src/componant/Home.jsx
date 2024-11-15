@@ -356,6 +356,24 @@ export default function Home() {
       }
     }
   };
+  const deletePost = async (id) => {
+    const res = await axios.delete(
+      `https://past-back.vercel.app/post/${id}`,
+      {
+        userId: user.id,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    const data = await res.data;
+    if (data.message) {
+      navigate("/home");
+    } else {
+      settitle(data.title);
+      setText(data.content);
+    }
+  };
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -413,7 +431,21 @@ export default function Home() {
           {data.map((post, index) => (
             <Link key={index} to={`/page/${post.id}`}>
               <div key={index} className="cards" style={{ color: "black" }}>
-                <h4>{post.title}</h4>
+                <h4 style={{ display: "flex", width: "100%" }}>
+                  {post.title}
+                  {post.authorId == user.id && (
+                    <button
+                      onClick={() => deletePost(post.id)}
+                      style={{
+                        padding: 3,
+                        marginLeft: "auto",
+                        fontSize: "small",
+                      }}
+                    >
+                      delete
+                    </button>
+                  )}
+                </h4>
               </div>
             </Link>
           ))}
