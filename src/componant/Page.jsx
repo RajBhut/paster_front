@@ -26,7 +26,7 @@ export default function Page() {
       withCredentials: true,
     });
 
-    const data = await res.json();
+    const data = res.data;
     if (data.message) {
       navigate("/home");
     } else {

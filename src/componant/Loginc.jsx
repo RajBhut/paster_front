@@ -42,7 +42,7 @@ export default function Loginc() {
         password,
         name,
       });
-      const data = await res.json();
+      const data = await res.data;
       setloading(false);
 
       if (data.error) {

@@ -348,7 +348,7 @@ export default function Home() {
           },
           { withCredentials: true }
         );
-        const newData = await res.json();
+        const newData = await res.data;
         setData([...data, newData]);
         textarea.current.value = "";
       } catch (error) {
@@ -369,7 +369,7 @@ export default function Home() {
         const res = await axios.get("https://past-back.vercel.app/post", {
           withCredentials: true,
         });
-        const data = await res.json();
+        const data = await res.data;
         setData(data);
       } catch (error) {
         console.log(error);
