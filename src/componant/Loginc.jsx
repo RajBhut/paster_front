@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Usercontext } from "./UsrProvider";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Loginc() {
   const { setuser } = useContext(Usercontext);
@@ -24,17 +25,22 @@ export default function Loginc() {
 
     const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
-      const res = await fetch(`https://past-back.vercel.app${endpoint}`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-        }),
+      // const res = await fetch(`https://past-back.vercel.app${endpoint}`, {
+      //   method: "POST",
+      //   credentials: "include",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     email,
+      //     password,
+      //     name,
+      //   }),
+      // });
+      const res = await axios.post(`https://past-back.vercel.app${endpoint}`, {
+        email,
+        password,
+        name,
       });
       const data = await res.json();
       setloading(false);

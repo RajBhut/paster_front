@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
 import { CodeComponent } from "./Home";
-
+import axios from "axios";
 import "./Page.css";
 
 export default function Page() {
@@ -22,13 +22,8 @@ export default function Page() {
     }
   }, []);
   const fatch = async () => {
-    const res = await fetch(`https://past-back.vercel.app/post/${id}`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await axios.get(`https://past-back.vercel.app/post/${id}`);
+
     const data = await res.json();
     if (data.message) {
       navigate("/home");

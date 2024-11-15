@@ -4,7 +4,7 @@ import { Usercontext } from "./UsrProvider";
 import "./Home.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
-
+import axios from "axios";
 const languages = [
   "oneC",
   "abnf",
@@ -327,17 +327,22 @@ export default function Home() {
     const text = textarea.current.value;
     if (text) {
       try {
-        const res = await fetch("https://past-back.vercel.app/post", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: title,
-            content: text,
-            userId: user.id,
-          }),
+        // const res = await fetch("https://past-back.vercel.app/post", {
+        //   method: "POST",
+        //   credentials: "include",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     title: title,
+        //     content: text,
+        //     userId: user.id,
+        //   }),
+        // });
+        const res = await axios.post("https://past-back.vercel.app/post", {
+          title: title,
+          content: text,
+          userId: user.id,
         });
         const newData = await res.json();
         setData([...data, newData]);
@@ -350,13 +355,14 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch("https://past-back.vercel.app/post", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        // const res = await fetch("https://past-back.vercel.app/post", {
+        //   method: "GET",
+        //   credentials: "include",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        // });
+        const res = await axios.get("https://past-back.vercel.app/post");
         const data = await res.json();
         setData(data);
       } catch (error) {
