@@ -327,7 +327,7 @@ export default function Home() {
     const text = textarea.current.value;
     if (text) {
       try {
-        const res = await fetch("http://localhost:3000/post", {
+        const res = await fetch("https://past-back.vercel.app/post", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -349,7 +349,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch("http://localhost:3000/post");
+        const res = await fetch("https://past-back.vercel.app/post");
         const data = await res.json();
         setData(data);
       } catch (error) {

@@ -22,7 +22,7 @@ export default function Page() {
     }
   }, []);
   const fatch = async () => {
-    const res = await fetch(`http://localhost:3000/post/${id}`);
+    const res = await fetch(`https://past-back.vercel.app/post/${id}`);
     const data = await res.json();
     if (data.message) {
       navigate("/home");

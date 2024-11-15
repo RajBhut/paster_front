@@ -24,7 +24,7 @@ export default function Loginc() {
 
     const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
-      const res = await fetch(`http://localhost:3000${endpoint}`, {
+      const res = await fetch(`https://past-back.vercel.app${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
