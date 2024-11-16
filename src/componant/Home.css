@@ -51,8 +51,15 @@ textarea {
   margin: 5px;
   height: 40px;
   text-align: center;
+  max-height: max-content;
+  flex-direction: column;
 }
 .home {
   min-height: 100vh;
   width: 100vw;
+}
+h4 {
+  max-width: 60%;
+  height: fit-content;
+  margin: 0;
 }

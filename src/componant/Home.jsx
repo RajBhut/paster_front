@@ -5,6 +5,8 @@ import "./Home.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const languages = [
   "oneC",
   "abnf",
@@ -322,23 +324,25 @@ export default function Home() {
   const [style, setStyle] = useState("docco");
   const textarea = useRef(null);
   const [title, settitle] = useState("New Document");
-
+  const fetchPosts = async () => {
+    try {
+      const res = await axios.get("https://past-back.vercel.app/post", {
+        withCredentials: true,
+      });
+      const data = await res.data;
+      setData(data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch posts.", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    }
+  };
   const addPost = async () => {
     const text = textarea.current.value;
-    if (text) {
+    if (text && title) {
       try {
-        // const res = await fetch("https://past-back.vercel.app/post", {
-        //   method: "POST",
-        //   credentials: "include",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify({
-        //     title: title,
-        //     content: text,
-        //     userId: user.id,
-        //   }),
-        // });
         const res = await axios.post(
           "https://past-back.vercel.app/post",
           {
@@ -351,48 +355,41 @@ export default function Home() {
         const newData = await res.data;
         setData([...data, newData]);
         textarea.current.value = "";
+        setText("");
+        settitle("");
+        toast.success("Post added successfully!");
       } catch (error) {
         console.log(error);
+        toast.error("Failed to add post.");
       }
+    } else {
+      toast.warning("Please enter content and title before submitting.");
     }
   };
-  const deletePost = async (id) => {
-    const res = await axios.delete(
-      `https://past-back.vercel.app/post/${id}`,
-      {
-        userId: user.id,
-      },
-      {
-        withCredentials: true,
+
+  const deletePost = async (post) => {
+    try {
+      const res = await axios.delete(
+        `https://past-back.vercel.app/post/${post.id}`,
+        {
+          withCredentials: true,
+          data: { userId: user.id, single_post: post },
+        }
+      );
+      const data = await res.data;
+      if (data.message) {
+        navigate("/home");
+        toast.info("Post deleted and redirected to home.");
+      } else {
+        fetchPosts();
+        toast.success("Post deleted successfully.", { icon: "🗑️" });
       }
-    );
-    const data = await res.data;
-    if (data.message) {
-      navigate("/home");
-    } else {
-      settitle(data.title);
-      setText(data.content);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete post.");
     }
   };
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        // const res = await fetch("https://past-back.vercel.app/post", {
-        //   method: "GET",
-        //   credentials: "include",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // });
-        const res = await axios.get("https://past-back.vercel.app/post", {
-          withCredentials: true,
-        });
-        const data = await res.data;
-        setData(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchPosts();
   }, []);
   useEffect(() => {
@@ -428,26 +425,33 @@ export default function Home() {
         </div>
 
         <div className="data">
-          {data.map((post, index) => (
-            <Link key={index} to={`/page/${post.id}`}>
-              <div key={index} className="cards" style={{ color: "black" }}>
-                <h4 style={{ display: "flex", width: "100%" }}>
+          {data.map((post) => (
+            <div key={post.id} className="cards" style={{ color: "black" }}>
+              <Link to={`/page/${post.id}`}>
+                <h4
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    maxHeight: "fit-content",
+                    color: "black",
+                  }}
+                >
                   {post.title}
-                  {post.authorId == user.id && (
-                    <button
-                      onClick={() => deletePost(post.id)}
-                      style={{
-                        padding: 3,
-                        marginLeft: "auto",
-                        fontSize: "small",
-                      }}
-                    >
-                      delete
-                    </button>
-                  )}
                 </h4>
-              </div>
-            </Link>
+              </Link>
+              {post.authorId === user.id && (
+                <button
+                  onClick={() => deletePost(post)}
+                  style={{
+                    padding: 3,
+                    marginLeft: "auto",
+                    fontSize: "small",
+                  }}
+                >
+                  delete
+                </button>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -478,9 +482,27 @@ export default function Home() {
           </select>
         </label>
       </div>
-      <div className="pre">
+      <div
+        className="code"
+        style={{
+          maxWidth: "80%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <CodeComponent text={text} language={language} style={style} />
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        draggable
+        theme="dark"
+      />
     </div>
   );
 }

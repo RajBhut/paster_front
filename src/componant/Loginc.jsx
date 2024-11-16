@@ -77,7 +77,7 @@ export default function Loginc() {
           alignItems: "center",
           gap: "10px",
           border: "1px solid black",
-          padding: "10px",
+
           borderRadius: "10px",
           padding: "40px",
         }}

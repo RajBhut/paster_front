@@ -4,7 +4,9 @@ import { Usercontext } from "./UsrProvider";
 import { CodeComponent } from "./Home";
 import axios from "axios";
 import "./Page.css";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 export default function Page() {
   const { user } = useContext(Usercontext);
   const navigate = useNavigate();
@@ -334,6 +336,9 @@ export default function Page() {
   ];
   const copytoclipbord = () => {
     navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!", {
+      icon: "📋",
+    });
   };
   return (
     <>
@@ -353,7 +358,6 @@ export default function Page() {
               ))}
             </select>
           </label>
-
           <label>
             Style:
             <select value={style} onChange={(e) => setStyle(e.target.value)}>
@@ -363,12 +367,30 @@ export default function Page() {
                 </option>
               ))}
             </select>
-          </label>
+          </label>{" "}
         </div>
         <button onClick={() => copytoclipbord()}>copy</button>
+
         <div className="pre">
+          <Link to={`/home`}>
+            <button style={{ color: "black", backgroundColor: "white" }}>
+              {" "}
+              Home
+            </button>
+          </Link>
+
           <CodeComponent text={text} language={language} style={style} />
         </div>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={true}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          draggable
+          theme="dark"
+        />
       </div>
     </>
   );
