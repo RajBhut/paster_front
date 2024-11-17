@@ -324,13 +324,15 @@ export default function Home() {
   const [style, setStyle] = useState("docco");
   const textarea = useRef(null);
   const [title, settitle] = useState("New Document");
+  const [burnafterread, setburnafterread] = useState(false);
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("https://past-back.vercel.app/post", {
+      const res = await axios.get("https://past-back.vercel.app0/post", {
         withCredentials: true,
       });
       const data = await res.data;
       setData(data);
+      console.log(data);
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch posts.", {
@@ -344,11 +346,12 @@ export default function Home() {
     if (text && title) {
       try {
         const res = await axios.post(
-          "https://past-back.vercel.app/post",
+          "https://past-back.vercel.app0/post",
           {
             title: title,
             content: text,
             userId: user.id,
+            bar: burnafterread,
           },
           { withCredentials: true }
         );
@@ -370,7 +373,7 @@ export default function Home() {
   const deletePost = async (post) => {
     try {
       const res = await axios.delete(
-        `https://past-back.vercel.app/post/${post.id}`,
+        `https://past-back.vercel.app0/post/${post.id}`,
         {
           withCredentials: true,
           data: { userId: user.id, single_post: post },
@@ -421,7 +424,36 @@ export default function Home() {
             onChange={(e) => setText(e.currentTarget.value)}
             placeholder="Add a note"
           ></textarea>
-          <button onClick={addPost}>Add</button>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              margin: "10px 0",
+            }}
+          >
+            <button
+              style={{
+                color: "black",
+                backgroundColor: "white",
+                width: "40%",
+                height: "30px",
+              }}
+              onClick={addPost}
+            >
+              Add
+            </button>
+            <label style={{ marginLeft: "10px" }} htmlFor="bar">
+              Burn After Read
+            </label>
+            <input
+              name="bar"
+              type="checkbox"
+              style={{ width: "20px", height: "20px" }}
+              onChange={() => {
+                setburnafterread(!burnafterread);
+              }}
+            />
+          </div>
         </div>
 
         <div className="data">
@@ -485,12 +517,13 @@ export default function Home() {
       <div
         className="code"
         style={{
-          maxWidth: "80%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
+        <h2>Preview</h2>
         <CodeComponent text={text} language={language} style={style} />
       </div>
       <ToastContainer

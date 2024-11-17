@@ -1,10 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Usercontext } from "./UsrProvider";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Loginc() {
-  const { setuser } = useContext(Usercontext);
+  const { setuser, user } = useContext(Usercontext);
   const [error, seterror] = useState("");
   const [loading, setloading] = useState(false);
   const [email, setEmail] = useState("");
@@ -13,10 +13,20 @@ export default function Loginc() {
   const [mode, setmode] = useState("signup");
   const [confirmPassword, setconfirmPassword] = useState("");
   const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem("user")) {
+      setuser(JSON.parse(localStorage.getItem("user")));
+    }
+  }, []);
 
   const loginOrSignup = async () => {
     setloading(true);
 
+    if (!email || !password) {
+      seterror("Please fill all the fields");
+      setloading(false);
+      return;
+    }
     if (mode === "signup" && password !== confirmPassword) {
       seterror("Passwords do not match");
       setloading(false);
@@ -25,19 +35,7 @@ export default function Loginc() {
 
     const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
-      // const res = await fetch(`https://past-back.vercel.app${endpoint}`, {
-      //   method: "POST",
-      //   credentials: "include",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     email,
-      //     password,
-      //     name,
-      //   }),
-      // });
-      const res = await axios.post(`https://past-back.vercel.app${endpoint}`, {
+      const res = await axios.post(`https://past-back.vercel.app0${endpoint}`, {
         email,
         password,
         name,
@@ -124,6 +122,14 @@ export default function Loginc() {
       >
         Switch to {mode === "signup" ? "Login" : "Sign Up"}
       </button>
+      {user && (
+        <Link to="/home">
+          {" "}
+          <button style={{ backgroundColor: "white", color: "black" }}>
+            Home
+          </button>
+        </Link>
+      )}
     </div>
   );
 }
