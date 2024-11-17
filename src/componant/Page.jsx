@@ -24,7 +24,7 @@ export default function Page() {
     }
   }, []);
   const fatch = async () => {
-    const res = await axios.get(`https://past-back.vercel.app0/post/${id}`, {
+    const res = await axios.get(`https://past-back.vercel.app/post/${id}`, {
       withCredentials: true,
     });
 

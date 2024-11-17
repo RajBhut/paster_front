@@ -327,7 +327,7 @@ export default function Home() {
   const [burnafterread, setburnafterread] = useState(false);
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("https://past-back.vercel.app0/post", {
+      const res = await axios.get("https://past-back.vercel.app/post", {
         withCredentials: true,
       });
       const data = await res.data;
@@ -345,7 +345,7 @@ export default function Home() {
     if (text && title) {
       try {
         const res = await axios.post(
-          "https://past-back.vercel.app0/post",
+          "https://past-back.vercel.app/post",
           {
             title: title,
             content: text,
@@ -372,7 +372,7 @@ export default function Home() {
   const deletePost = async (post) => {
     try {
       const res = await axios.delete(
-        `https://past-back.vercel.app0/post/${post.id}`,
+        `https://past-back.vercel.app/post/${post.id}`,
         {
           withCredentials: true,
           data: { userId: user.id, single_post: post },

@@ -35,7 +35,7 @@ export default function Loginc() {
 
     const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
-      const res = await axios.post(`https://past-back.vercel.app0${endpoint}`, {
+      const res = await axios.post(`https://past-back.vercel.app${endpoint}`, {
         email,
         password,
         name,
