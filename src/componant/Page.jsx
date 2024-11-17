@@ -29,6 +29,12 @@ export default function Page() {
     });
 
     const data = res.data;
+    if (res.status == 404) {
+      toast.error("Note does not exist 😓 ", {
+        icon: "📋",
+      });
+      navigate("/home");
+    }
     if (data.message) {
       navigate("/home");
     } else {

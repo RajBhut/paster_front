@@ -379,6 +379,7 @@ export default function Home() {
         }
       );
       const data = await res.data;
+
       if (data.message) {
         navigate("/home");
         toast.info("Post deleted and redirected to home.");
