@@ -24,22 +24,24 @@ export default function Page() {
     }
   }, []);
   const fatch = async () => {
-    const res = await axios.get(`https://past-back.vercel.app/post/${id}`, {
-      withCredentials: true,
-    });
+    try {
+      const res = await axios.get(`https://past-back.vercel.app/post/${id}`, {
+        withCredentials: true,
+      });
 
-    const data = res.data;
+      const data = res.data;
 
-    if (data.message) {
-      if (res.status == 404) {
-        toast.error("Note does not exist 😓 ", {
-          icon: "📋",
-        });
+      if (data.message) {
         navigate("/home");
+      } else {
+        setTitle(data.title);
+        setText(data.content);
       }
-    } else {
-      setTitle(data.title);
-      setText(data.content);
+    } catch (error) {
+      toast.error("Note does not exist 😓 ", {
+        icon: "📋",
+      });
+      navigate("/home");
     }
   };
 
