@@ -332,7 +332,6 @@ export default function Home() {
       });
       const data = await res.data;
       setData(data);
-      console.log(data);
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch posts.", {
