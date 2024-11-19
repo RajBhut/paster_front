@@ -381,8 +381,9 @@ export default function Page() {
             <div
               style={{
                 height: "auto",
-                margin: "0 auto",
-                maxWidth: 128,
+                margin: "50px auto",
+                maxWidth: 300,
+
                 width: "100%",
               }}
             >
