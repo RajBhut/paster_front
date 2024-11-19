@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
 import { CodeComponent } from "./Home";
+import QRCode from "react-qr-code";
 import axios from "axios";
 import "./Page.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -389,6 +390,24 @@ export default function Page() {
 
           <CodeComponent text={text} language={language} style={style} />
         </div>
+        {text != "" && (
+          <div
+            style={{
+              height: "auto",
+              margin: "0 auto",
+              maxWidth: 64,
+              width: "100%",
+            }}
+          >
+            <QRCode
+              size={256}
+              style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              value={text}
+              viewBox={`0 0 256 256`}
+            />
+          </div>
+        )}
+
         <ToastContainer
           position="bottom-right"
           autoClose={3000}
