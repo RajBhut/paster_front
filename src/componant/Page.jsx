@@ -404,13 +404,13 @@ export default function Page() {
                 margin: "0 50px",
                 maxWidth: 300,
 
-                width: 68,
+                width: 128,
               }}
             >
               <QRCode
                 size={256}
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={`https://past-back.vercel.app/post/${id}`}
+                value={`https://paster.rajb.codes/page/${id}`}
                 viewBox={`0 0 256 256`}
               />
             </div>
