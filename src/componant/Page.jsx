@@ -16,7 +16,7 @@ export default function Page() {
   const [language, setLanguage] = useState("java");
   const [style, setStyle] = useState("docco");
   const [title, setTitle] = useState("New Document");
-
+  const [showqr, setShowqr] = useState(false);
   const id = useParams().id;
 
   useEffect(() => {
@@ -353,35 +353,45 @@ export default function Page() {
     <>
       <div className="main">
         <h1>{title}</h1>
+
         <div className="settings">
-          <label>
-            Language:
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Style:
-            <select value={style} onChange={(e) => setStyle(e.target.value)}>
-              {styles.map((sty) => (
-                <option key={sty} value={sty}>
-                  {sty}
-                </option>
-              ))}
-            </select>
-          </label>
-          {text != "" && (
+          {!showqr && (
+            <>
+              <label>
+                Language:
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                >
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Style:
+                <select
+                  value={style}
+                  onChange={(e) => setStyle(e.target.value)}
+                >
+                  {styles.map((sty) => (
+                    <option key={sty} value={sty}>
+                      {sty}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          )}
+
+          <button onClick={() => setShowqr((prv) => !prv)}>show qr</button>
+          {text != "" && showqr && (
             <div
               style={{
                 height: "auto",
-                margin: "50px auto",
+                margin: "0 50px",
                 maxWidth: 300,
 
                 width: "100%",
@@ -401,7 +411,6 @@ export default function Page() {
         <div className="pre">
           <Link to={`/home`}>
             <button style={{ color: "black", backgroundColor: "white" }}>
-              {" "}
               Home
             </button>
           </Link>
