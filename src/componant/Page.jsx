@@ -386,7 +386,17 @@ export default function Page() {
             </>
           )}
 
-          <button onClick={() => setShowqr((prv) => !prv)}>show qr</button>
+          <button
+            style={{
+              backgroundColor: "white",
+              color: "black",
+              width: "100px",
+              height: "30px",
+            }}
+            onClick={() => setShowqr((prv) => !prv)}
+          >
+            show qr
+          </button>
           {text != "" && showqr && (
             <div
               style={{
@@ -394,7 +404,7 @@ export default function Page() {
                 margin: "0 50px",
                 maxWidth: 300,
 
-                width: "100%",
+                width: 500,
               }}
             >
               <QRCode
