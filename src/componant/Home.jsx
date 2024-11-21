@@ -345,7 +345,6 @@ export default function Home() {
     const text = textarea.current.value;
     if (text && title) {
       try {
-        console.log(API_URL);
         const res = await axios.post(
           `${API_URL}/post`,
           {
