@@ -7,6 +7,7 @@ import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const API_URL = import.meta.env.VITE_API_URL;
 const languages = [
   "oneC",
   "abnf",
@@ -327,7 +328,7 @@ export default function Home() {
   const [burnafterread, setburnafterread] = useState(false);
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("https://past-back.vercel.app/post", {
+      const res = await axios.get(`${API_URL}/post`, {
         withCredentials: true,
       });
       const data = await res.data;
@@ -345,7 +346,7 @@ export default function Home() {
     if (text && title) {
       try {
         const res = await axios.post(
-          "https://past-back.vercel.app/post",
+          `${API_URL}/post`,
           {
             title: title,
             content: text,
@@ -371,13 +372,10 @@ export default function Home() {
 
   const deletePost = async (post) => {
     try {
-      const res = await axios.delete(
-        `https://past-back.vercel.app/post/${post.id}`,
-        {
-          withCredentials: true,
-          data: { userId: user.id, single_post: post },
-        }
-      );
+      const res = await axios.delete(`${API_URL}/post/${post.id}`, {
+        withCredentials: true,
+        data: { userId: user.id, single_post: post },
+      });
       const data = await res.data;
 
       if (data.message) {

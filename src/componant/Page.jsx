@@ -5,6 +5,7 @@ import { CodeComponent } from "./Home";
 import QRCode from "react-qr-code";
 import axios from "axios";
 import "./Page.css";
+const API_URL = import.meta.env.VITE_API_URL;
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
@@ -26,7 +27,7 @@ export default function Page() {
   }, []);
   const fatch = async () => {
     try {
-      const res = await axios.get(`https://past-back.vercel.app/post/${id}`, {
+      const res = await axios.get(`${API_URL}post/${id}`, {
         withCredentials: true,
       });
 
@@ -410,7 +411,7 @@ export default function Page() {
               <QRCode
                 size={256}
                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                value={`https://paster.rajb.codes/page/${id}`}
+                value={`${API}page/${id}`}
                 viewBox={`0 0 256 256`}
               />
             </div>

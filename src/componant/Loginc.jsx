@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Usercontext } from "./UsrProvider";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL;
 export default function Loginc() {
   const { setuser, user } = useContext(Usercontext);
   const [error, seterror] = useState("");
@@ -35,7 +35,7 @@ export default function Loginc() {
 
     const endpoint = mode === "signup" ? "/user/" : "/user/login";
     try {
-      const res = await axios.post(`https://past-back.vercel.app${endpoint}`, {
+      const res = await axios.post(`${API_URL}${endpoint}`, {
         email,
         password,
         name,
