@@ -27,7 +27,7 @@ export default function Page() {
   }, []);
   const fatch = async () => {
     try {
-      const res = await axios.get(`${API_URL}post/${id}`, {
+      const res = await axios.get(`${API_URL}/post/${id}`, {
         withCredentials: true,
       });
 
