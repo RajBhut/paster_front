@@ -7,6 +7,9 @@ body {
 .container {
   display: flex;
   width: 100vw;
+
+  border: 3px solid black;
+  border-radius: 13px;
 }
 select {
   width: 100%;
@@ -44,7 +47,10 @@ textarea {
   background: white;
   height: 40vh;
   overflow: scroll;
-  width: 40%;
+  min-width: 40%;
+  width: 100%;
+  overflow-x: hidden;
+  border-radius: 13px;
 }
 .cards {
   display: flex;
@@ -53,9 +59,9 @@ textarea {
   background-color: #928a8a;
   padding: 5px;
   margin: 5px;
-  height: 40px;
+  min-height: 40px;
   text-align: center;
-  max-height: max-content;
+  max-height: fit-content;
   flex-direction: column;
   border-radius: 13px;
 }

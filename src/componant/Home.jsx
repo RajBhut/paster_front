@@ -1,13 +1,20 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
-import "./Home.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import {
+  Plus,
+  Minus,
+  Save,
+  Eye,
+  EyeOff,
+  MoreVertical,
+  Trash2,
+} from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-const API_URL = import.meta.env.VITE_API_URL;
 const languages = [
   "oneC",
   "abnf",
@@ -301,18 +308,105 @@ const styles = [
   "xt256",
   "zenburn",
 ];
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Keep your existing languages and styles arrays here
+// ... (keep the existing languages and styles arrays unchanged)
+
+const NoteCard = ({ post, user, onDelete }) => {
+  const [showMenu, setShowMenu] = useState(false);
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this note?")) {
+      await onDelete(post);
+    }
+  };
+
+  return (
+    <div className="group relative flex items-center bg-white p-4 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
+      <Link
+        to={`/page/${post.id}`}
+        className="flex-1 text-gray-900 hover:text-blue-600"
+      >
+        <h4 className="font-medium truncate">{post.title}</h4>
+        <p className="text-sm text-gray-500 mt-1">
+          {new Date(post.createdAt).toLocaleDateString()}
+        </p>
+      </Link>
+
+      {post.authorId === user.id && (
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+
+          {showMenu && (
+            <div className="absolute right-0 top-full mt-1 bg-white rounded-md shadow-lg border border-gray-100 py-1 w-32 z-10">
+              <button
+                onClick={handleDelete}
+                className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const NotesSection = ({ data, user, onDelete }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+      <h2 className="text-xl font-semibold text-gray-900">Your Notes</h2>
+      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
+        {data.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No notes yet. Create your first note!
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {data.map((post) => (
+              <NoteCard
+                key={post.id}
+                post={post}
+                user={user}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const CodeComponent = ({ text, language, style }) => {
   const selectedStyle = hljsStyles[style] || hljsStyles.docco;
   return (
-    <SyntaxHighlighter
-      customStyle={{ minHeight: "40vh", padding: "20px", minWidth: "50vw" }}
-      wrapLongLines
-      language={language}
-      style={selectedStyle}
-    >
-      {text}
-    </SyntaxHighlighter>
+    <div className="w-full rounded-lg overflow-hidden shadow-lg">
+      <SyntaxHighlighter
+        customStyle={{
+          minHeight: "40vh",
+          padding: "20px",
+          margin: 0,
+          borderRadius: "0.5rem",
+        }}
+        wrapLongLines
+        language={language}
+        style={selectedStyle}
+      >
+        {text}
+      </SyntaxHighlighter>
+    </div>
   );
 };
 
@@ -321,52 +415,46 @@ export default function Home() {
   const { user, setuser } = useContext(Usercontext);
   const [data, setData] = useState([]);
   const [text, setText] = useState("");
-  const [language, setLanguage] = useState("java");
-  const [style, setStyle] = useState("docco");
+  const [language, setLanguage] = useState("javascript");
+  const [style, setStyle] = useState("atomOneDark");
   const textarea = useRef(null);
-  const [title, settitle] = useState("New Document");
-  const [burnafterread, setburnafterread] = useState(false);
+  const [title, setTitle] = useState("New Document");
+  const [burnAfterRead, setBurnAfterRead] = useState(false);
+  const [addNew, setAddNew] = useState(false);
+
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(`${API_URL}/post`, {
-        withCredentials: true,
-      });
-      const data = await res.data;
-      setData(data);
+      const res = await axios.get(`${API_URL}/post`, { withCredentials: true });
+      setData(res.data);
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to fetch posts.", {
-        position: "bottom-right",
-        autoClose: 3000,
-      });
+      toast.error("Failed to fetch posts.");
     }
   };
+
   const addPost = async () => {
-    const text = textarea.current.value;
-    if (text && title) {
-      try {
-        const res = await axios.post(
-          `${API_URL}/post`,
-          {
-            title: title,
-            content: text,
-            userId: user.id,
-            bar: burnafterread,
-          },
-          { withCredentials: true }
-        );
-        const newData = await res.data;
-        setData([...data, newData]);
-        textarea.current.value = "";
-        setText("");
-        settitle("");
-        toast.success("Post added successfully!");
-      } catch (error) {
-        console.log(error);
-        toast.error("Failed to add post.");
-      }
-    } else {
+    if (!text || !title) {
       toast.warning("Please enter content and title before submitting.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/post`,
+        {
+          title,
+          content: text,
+          userId: user.id,
+          bar: burnAfterRead,
+        },
+        { withCredentials: true }
+      );
+      setData([...data, res.data]);
+      setText("");
+      setTitle("");
+      textarea.current.value = "";
+      toast.success("Note added successfully!");
+    } catch (error) {
+      toast.error("Failed to add note.");
     }
   };
 
@@ -376,164 +464,173 @@ export default function Home() {
         withCredentials: true,
         data: { userId: user.id, single_post: post },
       });
-      const data = await res.data;
 
-      if (data.message) {
+      if (res.data.message) {
         navigate("/home");
         toast.info("Post deleted and redirected to home.");
       } else {
         fetchPosts();
-        toast.success("Post deleted successfully.", { icon: "🗑️" });
+        toast.success("Post deleted successfully.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("Failed to delete post.");
     }
   };
+
   useEffect(() => {
     fetchPosts();
   }, []);
-  useEffect(() => {
-    if (!user) {
-      navigate("/");
-    }
-  });
-  return (
-    <div className="home">
-      <header
-        style={{
-          minHeight: "fit-content",
-        }}
-      >
-        <h1>Home</h1>
-      </header>
 
-      <div className="container">
-        <div className="add">
-          <input
-            type="text"
-            placeholder="Enter title"
-            value={title}
-            onChange={(e) => settitle(e.target.value)}
-            style={{ padding: "10px 10px", fontSize: "large" }}
-          />
-          <textarea
-            ref={textarea}
-            onChange={(e) => setText(e.currentTarget.value)}
-            placeholder="Add a note"
-          ></textarea>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              margin: "10px 0",
-            }}
+  useEffect(() => {
+    if (!user) navigate("/");
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const menus = document.querySelectorAll(".absolute.right-0.top-full");
+      menus.forEach((menu) => {
+        if (!menu.contains(event.target) && !event.target.closest("button")) {
+          const noteCard = menu.closest(".group");
+          if (noteCard) {
+            noteCard.querySelector("button").click();
+          }
+        }
+      });
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <header className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Code Notes</h1>
+          <button
+            onClick={() => setAddNew((prev) => !prev)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <button
-              style={{
-                color: "black",
-                backgroundColor: "white",
-                width: "40%",
-                height: "30px",
-              }}
-              onClick={addPost}
-            >
-              Add
-            </button>
-            <label style={{ marginLeft: "10px" }} htmlFor="bar">
-              Burn After Read
-            </label>
-            <input
-              name="bar"
-              type="checkbox"
-              style={{ width: "20px", height: "20px" }}
-              onChange={() => {
-                setburnafterread(!burnafterread);
-              }}
-            />
+            {addNew ? (
+              <Minus className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            {addNew ? "Hide Editor" : "New Note"}
+          </button>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {addNew && (
+              <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+                <input
+                  type="text"
+                  placeholder="Enter title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-4 py-2 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <textarea
+                  ref={textarea}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Enter your code here..."
+                  className="w-full h-40 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={addPost}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Note
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={burnAfterRead}
+                        onChange={() => setBurnAfterRead(!burnAfterRead)}
+                        className="w-4 h-4 rounded"
+                      />
+                      Burn After Read
+                      {burnAfterRead ? (
+                        <EyeOff className="w-4 h-4 text-red-500" />
+                      ) : (
+                        <Eye className="w-4 h-4 text-gray-500" />
+                      )}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <NotesSection data={data} user={user} onDelete={deletePost} />
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Editor Settings
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Language
+                  </label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {languages.map((lang) => (
+                      <option key={lang} value={lang}>
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Theme
+                  </label>
+                  <select
+                    value={style}
+                    onChange={(e) => setStyle(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {styles.map((sty) => (
+                      <option key={sty} value={sty}>
+                        {sty}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-gray-900">Preview</h2>
+              <CodeComponent text={text} language={language} style={style} />
+            </div>
           </div>
         </div>
 
-        <div className="data">
-          {data.map((post) => (
-            <div key={post.id} className="cards" style={{ color: "black" }}>
-              <Link to={`/page/${post.id}`}>
-                <h4
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    maxHeight: "fit-content",
-                    color: "black",
-                  }}
-                >
-                  {post.title}
-                </h4>
-              </Link>
-              {post.authorId === user.id && (
-                <button
-                  onClick={() => deletePost(post)}
-                  style={{
-                    padding: 3,
-                    marginLeft: "auto",
-                    fontSize: "small",
-                  }}
-                >
-                  delete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </div>
-
-      <div className="settings">
-        <label>
-          Language:
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            {languages.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Style:
-          <select value={style} onChange={(e) => setStyle(e.target.value)}>
-            {styles.map((sty) => (
-              <option key={sty} value={sty}>
-                {sty}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div
-        className="code"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <h2>Preview</h2>
-        <CodeComponent text={text} language={language} style={style} />
-      </div>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        draggable
-        theme="dark"
-      />
     </div>
   );
 }
