@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { UserContext } from "./UsrProvider";
+import { Usercontext } from "./UsrProvider";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { User, Lock, Mail, ArrowRight } from "lucide-react";
@@ -7,7 +7,7 @@ import { User, Lock, Mail, ArrowRight } from "lucide-react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Loginc() {
-  const { setuser, user } = useContext(UserContext);
+  const { setuser, user } = useContext(Usercontext);
   const [error, seterror] = useState("");
   const [loading, setloading] = useState(false);
   const [email, setEmail] = useState("");
