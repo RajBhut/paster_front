@@ -86,7 +86,7 @@ export default function Loginc() {
                   </div>
                   <input
                     type="text"
-                    placeholder="John Doe"
+                    placeholder="Monkey D. Luffy"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
