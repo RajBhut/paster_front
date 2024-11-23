@@ -310,9 +310,6 @@ const styles = [
 ];
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Keep your existing languages and styles arrays here
-// ... (keep the existing languages and styles arrays unchanged)
-
 const NoteCard = ({ post, user, onDelete }) => {
   const [showMenu, setShowMenu] = useState(false);
 
