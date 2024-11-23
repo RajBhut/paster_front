@@ -464,7 +464,7 @@ export default function Page() {
                         maxWidth: "100%",
                         width: "128px",
                       }}
-                      value={`${API_URL}page/${id}`}
+                      value={`https://paster.rajb.codes/page/${id}`}
                       viewBox={`0 0 256 256`}
                     />
                   </div>
