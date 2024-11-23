@@ -6,7 +6,7 @@ import { User, Lock, Mail, ArrowRight } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function LoginComponent() {
+export default function Loginc() {
   const { setuser, user } = useContext(UserContext);
   const [error, seterror] = useState("");
   const [loading, setloading] = useState(false);
