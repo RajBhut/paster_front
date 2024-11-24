@@ -3,7 +3,7 @@ import { Usercontext } from "./UsrProvider";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { User, Lock, Mail, ArrowRight, UserCircle2 } from "lucide-react";
-
+axios.defaults.withCredentials = true;
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Loginc() {
@@ -44,7 +44,9 @@ export default function Loginc() {
         password,
         name,
       });
+
       const data = await res.data;
+      console.log(data);
       setloading(false);
 
       if (data.error) {
@@ -64,7 +66,6 @@ export default function Loginc() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="min-h-screen flex flex-col lg:flex-row">
-        {/* Decorative Side Panel */}
         <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 items-center justify-center relative overflow-hidden">
           <div className="relative z-10 text-white max-w-lg">
             <h1 className="text-4xl font-bold mb-6">Welcome to Paster</h1>

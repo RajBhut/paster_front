@@ -445,12 +445,16 @@ export default function Home() {
         },
         { withCredentials: true }
       );
+
       setData([...data, res.data]);
       setText("");
       setTitle("");
       textarea.current.value = "";
       toast.success("Note added successfully!");
     } catch (error) {
+      if (error.status == 401) {
+        navigate("/");
+      }
       toast.error("Failed to add note.");
     }
   };
