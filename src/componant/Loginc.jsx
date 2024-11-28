@@ -46,7 +46,7 @@ export default function Loginc() {
       });
 
       const data = await res.data;
-      console.log(data);
+      
       setloading(false);
 
       if (data.error) {

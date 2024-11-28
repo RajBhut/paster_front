@@ -418,14 +418,40 @@ export default function Home() {
   const [title, setTitle] = useState("New Document");
   const [burnAfterRead, setBurnAfterRead] = useState(false);
   const [addNew, setAddNew] = useState(false);
-
-  const fetchPosts = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const fetchPosts = async (page = 1) => {
     try {
-      const res = await axios.get(`${API_URL}/post`, { withCredentials: true });
-      setData(res.data);
+      const res = await axios.get(`${API_URL}/post`, {
+        withCredentials: true,
+        params: { page, limit: 5 },
+      });
+
+      setData(res.data.posts);
+      setCurrentPage(res.data.currentPage);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch posts.");
     }
+  };
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => fetchPosts(i)}
+          className={`px-4 py-2 mx-1 rounded ${
+            currentPage === i
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageNumbers;
   };
 
   const addPost = async () => {
@@ -450,6 +476,7 @@ export default function Home() {
       setText("");
       setTitle("");
       textarea.current.value = "";
+      fetchPosts(1);
       toast.success("Note added successfully!");
     } catch (error) {
       if (error.status == 401) {
@@ -510,6 +537,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Code Notes</h1>
+
           <button
             onClick={() => setAddNew((prev) => !prev)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -569,6 +597,7 @@ export default function Home() {
             )}
 
             <NotesSection data={data} user={user} onDelete={deletePost} />
+            {renderPagination()}
           </div>
 
           <div className="space-y-6">
