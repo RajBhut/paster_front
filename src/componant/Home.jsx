@@ -368,7 +368,14 @@ const NotesSection = ({ data, user, onDelete, loading }) => {
       <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
         {data.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            {!loading ? " No notes yet. Create your first note!" : "loading..."}
+            {!loading ? (
+              " No notes yet. Create your first note!"
+            ) : (
+              <div className="w-full flex flex-col items-center justify-center">
+                <img src="Rhombus.gif" className="w-10 h-10" alt="" />
+                <h3>loading...</h3>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-2">
@@ -600,7 +607,12 @@ export default function Home() {
               </div>
             )}
 
-            <NotesSection data={data} user={user} onDelete={deletePost} />
+            <NotesSection
+              data={data}
+              user={user}
+              loading={loading}
+              onDelete={deletePost}
+            />
             {renderPagination()}
           </div>
 
