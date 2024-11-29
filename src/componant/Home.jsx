@@ -308,6 +308,7 @@ const styles = [
   "xt256",
   "zenburn",
 ];
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const NoteCard = ({ post, user, onDelete }) => {
@@ -360,14 +361,14 @@ const NoteCard = ({ post, user, onDelete }) => {
   );
 };
 
-const NotesSection = ({ data, user, onDelete }) => {
+const NotesSection = ({ data, user, onDelete, loading }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">Your Notes</h2>
       <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
         {data.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No notes yet. Create your first note!
+            {!loading ? " No notes yet. Create your first note!" : "loading..."}
           </div>
         ) : (
           <div className="space-y-2">
@@ -409,6 +410,7 @@ export const CodeComponent = ({ text, language, style }) => {
 
 export default function Home() {
   const navigate = useNavigate();
+  const [loading, setloading] = useState(false);
   const { user, setuser } = useContext(Usercontext);
   const [data, setData] = useState([]);
   const [text, setText] = useState("");
@@ -421,6 +423,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const fetchPosts = async (page = 1) => {
+    setloading(true);
     try {
       const res = await axios.get(`${API_URL}/post`, {
         withCredentials: true,
@@ -433,6 +436,7 @@ export default function Home() {
     } catch (error) {
       toast.error("Failed to fetch posts.");
     }
+    setloading(false);
   };
   const renderPagination = () => {
     const pageNumbers = [];

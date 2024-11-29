@@ -21,6 +21,9 @@ export default function Loginc() {
     if (localStorage.getItem("user")) {
       setuser(JSON.parse(localStorage.getItem("user")));
     }
+    if (user) {
+      navigate("/home");
+    }
   }, []);
 
   const loginOrSignup = async () => {
@@ -46,7 +49,7 @@ export default function Loginc() {
       });
 
       const data = await res.data;
-      
+
       setloading(false);
 
       if (data.error) {
