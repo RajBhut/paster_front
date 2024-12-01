@@ -8,7 +8,7 @@ import { BiUpvote, BiSolidUpvote } from "react-icons/bi";
 import { ToastContainer, toast } from "react-toastify";
 import { Home, Copy, QrCode, Palette, Code, X } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import { u, use } from "framer-motion/client";
+
 const languages = [
   "oneC",
   "abnf",
