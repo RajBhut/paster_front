@@ -323,16 +323,14 @@ export default function Page() {
   async function fetchUpvotedata() {
     try {
       const res = await axios.get(
-        `${API_URL}/post/upvotes/data`,
-        {
-          postId: Number(id),
-          userId: Number(user.id),
-        },
+        `${API_URL}/post/upvotes/data/${Number(id)}`,
+
         {
           withCredentials: true,
         }
       );
       const { upvotecount, userupvote } = res.data;
+
       setIsUpvoted(userupvote);
       setUpvotecount(upvotecount);
     } catch (error) {
