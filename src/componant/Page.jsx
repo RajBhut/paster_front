@@ -319,7 +319,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchUpvotedata();
-  }, [is_upvoted]);
+  }, []);
   async function fetchUpvotedata() {
     try {
       const res = await axios.get(
