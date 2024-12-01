@@ -4,9 +4,11 @@ import { Usercontext } from "./UsrProvider";
 import { CodeComponent } from "./Home";
 import QRCode from "react-qr-code";
 import axios from "axios";
+import { BiUpvote, BiSolidUpvote } from "react-icons/bi";
 import { ToastContainer, toast } from "react-toastify";
 import { Home, Copy, QrCode, Palette, Code, X } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
+import { u, use } from "framer-motion/client";
 const languages = [
   "oneC",
   "abnf",
@@ -306,13 +308,58 @@ export default function Page() {
   const { user } = useContext(Usercontext);
   const navigate = useNavigate();
   const { id } = useParams();
-
+  const [upvotecount, setUpvotecount] = useState(0);
   const [text, setText] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [style, setStyle] = useState("atomOneDark");
   const [title, setTitle] = useState("New Document");
   const [showQr, setShowQr] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [is_upvoted, setIsUpvoted] = useState(false);
+
+  useEffect(() => {
+    fetchUpvotedata();
+  }, [is_upvoted]);
+  async function fetchUpvotedata() {
+    try {
+      const res = await axios.get(
+        `${API_URL}/post/upvotes/data`,
+        {
+          postId: Number(id),
+          userId: Number(user.id),
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      const { upvotecount, userupvote } = res.data;
+      setIsUpvoted(userupvote);
+      setUpvotecount(upvotecount);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async function upvote() {
+    try {
+      const res = await axios.post(
+        `${API_URL}/post/upvote`,
+        {
+          postId: Number(id),
+          userId: Number(user.id),
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      if (res.data.message === "Upvoted") {
+        setIsUpvoted(true);
+      } else {
+        setIsUpvoted(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     if (!user) {
@@ -342,6 +389,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchNote();
+    fetchUpvotedata();
   }, [id]);
 
   const copyToClipboard = () => {
@@ -363,7 +411,19 @@ export default function Page() {
               <Home className="w-4 h-4" />
               Home
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+            <h1 className="text-2xl font-bold mr-10 text-gray-900">{title}</h1>
+            {upvotecount}
+            {is_upvoted ? (
+              <BiSolidUpvote
+                onClick={() => upvote()}
+                className="w-6 h-6 text-red-500"
+              />
+            ) : (
+              <BiSolidUpvote
+                onClick={() => upvote()}
+                className="w-6 h-6"
+              ></BiSolidUpvote>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
