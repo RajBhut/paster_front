@@ -387,7 +387,6 @@ export default function Page() {
 
   useEffect(() => {
     fetchNote();
-    fetchUpvotedata();
   }, [id]);
 
   const copyToClipboard = () => {
