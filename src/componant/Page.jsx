@@ -316,8 +316,12 @@ export default function Page() {
   const [showQr, setShowQr] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [is_upvoted, setIsUpvoted] = useState(false);
-
   useEffect(() => {
+    console.log("huii");
+    fetchUpvotedata();
+  }, [is_upvoted]);
+  useEffect(() => {
+    console.log("fatched");
     fetchUpvotedata();
   }, []);
   async function fetchUpvotedata() {
