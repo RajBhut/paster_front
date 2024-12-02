@@ -319,7 +319,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchUpvotedata();
-  }, []);
+  }, [upvote]);
   async function fetchUpvotedata() {
     try {
       const res = await axios.get(
@@ -410,18 +410,6 @@ export default function Page() {
               Home
             </Link>
             <h1 className="text-2xl font-bold mr-10 text-gray-900">{title}</h1>
-            {upvotecount}
-            {is_upvoted ? (
-              <BiSolidUpvote
-                onClick={() => upvote()}
-                className="w-6 h-6 text-red-500"
-              />
-            ) : (
-              <BiSolidUpvote
-                onClick={() => upvote()}
-                className="w-6 h-6"
-              ></BiSolidUpvote>
-            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -454,7 +442,6 @@ export default function Page() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Settings Panel */}
           {showSettings && (
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
@@ -513,6 +500,20 @@ export default function Page() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Code Preview
                 </h2>
+                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  {upvotecount}
+                  {is_upvoted ? (
+                    <BiSolidUpvote
+                      onClick={() => upvote()}
+                      className="w-6 h-6 text-red-500"
+                    />
+                  ) : (
+                    <BiSolidUpvote
+                      onClick={() => upvote()}
+                      className="w-6 h-6"
+                    ></BiSolidUpvote>
+                  )}{" "}
+                </div>
                 {showQr && text && (
                   <div className="p-4 bg-white rounded-lg shadow-lg">
                     <QRCode
