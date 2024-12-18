@@ -368,7 +368,7 @@ const NotesSection = ({ data, user, onDelete, loading }) => {
     <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">Your Notes</h2>
       <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
-        {data.length === 0 ? (
+        {data.length === 0 && user != null ? (
           <div className="text-center py-8 text-gray-500">
             {!loading ? (
               " No notes yet. Create your first note!"
