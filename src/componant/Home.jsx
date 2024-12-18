@@ -9,6 +9,8 @@ import {
   Plus,
   Minus,
   Save,
+  Github,
+  Mail,
   Eye,
   EyeOff,
   MoreVertical,
@@ -686,25 +688,24 @@ export default function Home() {
           theme="light"
         />
         <footer className=" min-h-fit   text-gray-500 text-sm">
-          <p className="flex flex-col text-center sm:flex-row  justify-between gap-3">
-            © 2024 Paster. All rights reserved
+          <p className="text-center">© 2024 Paster. All rights reserved</p>
+          <p className="flex  text-center gap-3 justify-end items-center">
             <a className="" href="mailto:rajbhut2832005@gmail.com">
-              conect us
+              <Mail />
             </a>
-            <a className="float-end" href="https://github.com/RajBhut">
-              {"For More Details"}
+            <a className="float-end flex" href="https://github.com/RajBhut">
+              <Github />
             </a>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="bg-red-500 my-3  text-white p-2 rounded-md float-end"
+            >
+              Logout
+            </button>
           </p>
-          <p className="text-center"></p>
-          <button
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="bg-red-500 my-3  text-white p-2 rounded-md float-end"
-          >
-            Logout
-          </button>
         </footer>
       </div>
     </div>
