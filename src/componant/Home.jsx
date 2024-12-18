@@ -464,7 +464,14 @@ export default function Home() {
     }
     return pageNumbers;
   };
-
+  const logout = async () => {
+    try {
+      await axios.post(`${API_URL}/user/logout`, {}, { withCredentials: true });
+      setuser(null);
+    } catch (error) {
+      toast.error("Failed to logout.");
+    }
+  };
   const addPost = async () => {
     if (!text || !title) {
       toast.warning("Please enter content and title before submitting.");
@@ -547,7 +554,9 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Code Notes</h1>
+          <h1 className="text-4xl font-extrabold font-bold text-gray-900">
+            Paster
+          </h1>
 
           <button
             onClick={() => setAddNew((prev) => !prev)}
@@ -676,6 +685,27 @@ export default function Home() {
           pauseOnHover
           theme="light"
         />
+        <footer className=" min-h-fit   text-gray-500 text-sm">
+          <p className="flex flex-col text-center sm:flex-row  justify-between gap-3">
+            © 2024 Paster. All rights reserved
+            <a className="" href="mailto:rajbhut2832005@gmail.com">
+              conect us
+            </a>
+            <a className="float-end" href="https://github.com/RajBhut">
+              {"For More Details"}
+            </a>
+          </p>
+          <p className="text-center"></p>
+          <button
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
+            className="bg-red-500 my-3  text-white p-2 rounded-md float-end"
+          >
+            Logout
+          </button>
+        </footer>
       </div>
     </div>
   );
