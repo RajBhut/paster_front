@@ -500,7 +500,7 @@ export default function Home() {
       toast.success("Note added successfully!");
     } catch (error) {
       if (error.status == 401) {
-        navigate("/home");
+        navigate("/");
       }
       toast.error("Failed to add note.");
     }
