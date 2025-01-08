@@ -19,11 +19,13 @@ export default function Loginc() {
 
   useEffect(() => {
     check_valid_user();
+
     if (localStorage.getItem("user")) {
       setuser(JSON.parse(localStorage.getItem("user")));
     }
+  }, []);
+  useEffect(() => {
     if (user) {
-      console.log(user);
       navigate("/home");
     }
   }, []);
