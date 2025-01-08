@@ -26,6 +26,17 @@ export default function Loginc() {
     }
   }, []);
 
+  const check_valid_user = async () => {
+    const res = await axios.get(`${API_URL}/user/profile`);
+    if (res.data) {
+      setuser(res.data);
+      console.log(res.data);
+      localStorage.setItem("user", JSON.stringify(res.data));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
+
   const loginOrSignup = async () => {
     setloading(true);
 
