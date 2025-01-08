@@ -23,6 +23,7 @@ export default function Loginc() {
       setuser(JSON.parse(localStorage.getItem("user")));
     }
     if (user) {
+      console.log(user);
       navigate("/home");
     }
   }, []);
