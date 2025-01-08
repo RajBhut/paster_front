@@ -499,6 +499,7 @@ export default function Home() {
       fetchPosts(1);
       toast.success("Note added successfully!");
     } catch (error) {
+      console.log("error", error.status);
       if (error.status == 401) {
         navigate("/");
       }
