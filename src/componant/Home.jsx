@@ -435,6 +435,7 @@ export default function Home() {
   const [addNew, setAddNew] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalPost, settotalpost] = useState(0);
   const fetchPosts = async (page = 1) => {
     setloading(true);
     try {
@@ -445,6 +446,7 @@ export default function Home() {
 
       setData(res.data.posts);
       setCurrentPage(res.data.currentPage);
+      settotalpost(res.data.totalPosts);
       setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch posts.");
@@ -597,7 +599,6 @@ export default function Home() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column - Editor and Notes (spans 7 columns on large screens) */}
           <div className="lg:col-span-7 space-y-6">
             {addNew && (
               <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
@@ -681,7 +682,7 @@ export default function Home() {
                       Loading...
                     </div>
                   ) : (
-                    data.length + " notes"
+                    totalPost + " notes"
                   )}
                 </div>
               </div>
@@ -699,7 +700,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Column - Settings and Preview (spans 5 columns on large screens) */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
