@@ -128,7 +128,6 @@ export default function Loginc() {
           </div>
         </div>
 
-        {/* Form Side */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl space-y-8">
             <div className="text-center">

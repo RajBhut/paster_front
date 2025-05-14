@@ -15,6 +15,10 @@ import {
   EyeOff,
   MoreVertical,
   Trash2,
+  Code,
+  LogOut,
+  ChevronDown,
+  Loader2,
 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 const languages = [
@@ -553,127 +557,241 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <header className="flex justify-between items-center">
-          <h1 className="text-4xl font-extrabold font-bold text-gray-900">
-            Paster
-          </h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header with improved styling */}
+        <header className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-6 border-b border-gray-200">
+          <div className="flex items-center mb-4 sm:mb-0">
+            <div className="bg-blue-600 text-white p-2 rounded-lg mr-3">
+              <Code className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
+              Paster
+            </h1>
+          </div>
 
-          <button
-            onClick={() => setAddNew((prev) => !prev)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            {addNew ? (
-              <Minus className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            {addNew ? "Hide Editor" : "New Note"}
-          </button>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setAddNew((prev) => !prev)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              {addNew ? (
+                <Minus className="w-4 h-4" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+              {addNew ? "Hide Editor" : "New Note"}
+            </button>
+
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column - Editor and Notes (spans 7 columns on large screens) */}
+          <div className="lg:col-span-7 space-y-6">
             {addNew && (
-              <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-                <input
-                  type="text"
-                  placeholder="Enter title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <textarea
-                  ref={textarea}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Enter your code here..."
-                  className="w-full h-40 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={addPost}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    <Save className="w-4 h-4" />
-                    Save Note
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-2 text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={burnAfterRead}
-                        onChange={() => setBurnAfterRead(!burnAfterRead)}
-                        className="w-4 h-4 rounded"
-                      />
-                      Burn After Read
-                      {burnAfterRead ? (
-                        <EyeOff className="w-4 h-4 text-red-500" />
-                      ) : (
-                        <Eye className="w-4 h-4 text-gray-500" />
-                      )}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Create New Note
+                  </h2>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Title
                     </label>
+                    <input
+                      id="title"
+                      type="text"
+                      placeholder="Enter descriptive title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="content"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Content
+                    </label>
+                    <textarea
+                      id="content"
+                      ref={textarea}
+                      onChange={(e) => setText(e.target.value)}
+                      placeholder="Enter your code here..."
+                      className="w-full h-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      onClick={addPost}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Note
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-2 text-gray-700 text-sm cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={burnAfterRead}
+                          onChange={() => setBurnAfterRead(!burnAfterRead)}
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span>Burn After Read</span>
+                        {burnAfterRead ? (
+                          <EyeOff className="w-4 h-4 text-red-500" />
+                        ) : (
+                          <Eye className="w-4 h-4 text-gray-500" />
+                        )}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            <NotesSection
-              data={data}
-              user={user}
-              loading={loading}
-              onDelete={deletePost}
-            />
-            {renderPagination()}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Your Notes
+                </h2>
+                <div className="text-sm text-gray-500">
+                  {loading ? (
+                    <div className="flex items-center">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </div>
+                  ) : (
+                    data.length + " notes"
+                  )}
+                </div>
+              </div>
+              <div className="divide-y divide-gray-100">
+                <NotesSection
+                  data={data}
+                  user={user}
+                  loading={loading}
+                  onDelete={deletePost}
+                />
+              </div>
+              <div className="bg-gray-50 px-6 py-3 border-t border-gray-100">
+                {renderPagination()}
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Editor Settings
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Language
-                  </label>
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {languages.map((lang) => (
-                      <option key={lang} value={lang}>
-                        {lang}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Theme
-                  </label>
-                  <select
-                    value={style}
-                    onChange={(e) => setStyle(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {styles.map((sty) => (
-                      <option key={sty} value={sty}>
-                        {sty}
-                      </option>
-                    ))}
-                  </select>
+          {/* Right Column - Settings and Preview (spans 5 columns on large screens) */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Editor Settings
+                </h2>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Language
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      >
+                        {languages.map((lang) => (
+                          <option key={lang} value={lang}>
+                            {lang}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Theme
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={style}
+                        onChange={(e) => setStyle(e.target.value)}
+                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      >
+                        {styles.map((sty) => (
+                          <option key={sty} value={sty}>
+                            {sty}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Preview</h2>
-              <CodeComponent text={text} language={language} style={style} />
+            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">Preview</h2>
+                <div className="flex items-center text-sm text-gray-500">
+                  <Code className="w-4 h-4 mr-1" /> {language}
+                </div>
+              </div>
+              <div className="p-4 bg-gray-800 rounded-b-xl">
+                <CodeComponent text={text} language={language} style={style} />
+              </div>
             </div>
           </div>
         </div>
+
+        <footer className="mt-12 py-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-gray-500 text-sm">
+              © 2024 Paster. All rights reserved
+            </p>
+            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+              <a
+                href="mailto:rajbhut2832005@gmail.com"
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Email"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="https://github.com/RajBhut"
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        </footer>
 
         <ToastContainer
           position="bottom-right"
@@ -687,26 +805,6 @@ export default function Home() {
           pauseOnHover
           theme="light"
         />
-        <footer className=" min-h-fit   text-gray-500 text-sm">
-          <p className="text-center">© 2024 Paster. All rights reserved</p>
-          <p className="flex  text-center gap-3 justify-end items-center">
-            <a className="" href="mailto:rajbhut2832005@gmail.com">
-              <Mail />
-            </a>
-            <a className="float-end flex" href="https://github.com/RajBhut">
-              <Github />
-            </a>
-            <button
-              onClick={() => {
-                logout();
-                navigate("/");
-              }}
-              className="bg-red-500 my-3  text-white p-2 rounded-md float-end"
-            >
-              Logout
-            </button>
-          </p>
-        </footer>
       </div>
     </div>
   );
