@@ -561,6 +561,45 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Important Alert Banner */}
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-amber-400 mt-0.5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-semibold text-amber-800">
+                Important Notice: Backend Restructure
+              </h3>
+              <div className="mt-2 text-sm text-amber-700">
+                <p>
+                  We're currently restructuring our backend system. Your data
+                  may be temporarily unavailable or lost during this process. If
+                  you need to preserve your important notes, please contact us
+                  at{" "}
+                  <a
+                    href="mailto:rajbhut2832005@gmail.com?subject=Data%20Backup%20Request%20-%20Paster%20App&body=Hi,%0A%0AI%20would%20like%20to%20request%20a%20backup%20of%20my%20data%20from%20the%20Paster%20app.%0A%0AUser%20ID:%20[Your%20User%20ID]%0AEmail:%20[Your%20Email]%0A%0AThank%20you!"
+                    className="text-amber-800 underline hover:text-amber-900 font-medium"
+                  >
+                    rajbhut2832005@gmail.com
+                  </a>{" "}
+                  before proceeding.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Header with improved styling */}
         <header className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-6 border-b border-gray-200">
           <div className="flex items-center mb-4 sm:mb-0">
