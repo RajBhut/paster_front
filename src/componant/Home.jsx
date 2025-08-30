@@ -19,8 +19,6 @@ import {
   LogOut,
   ChevronDown,
   Loader2,
-<<<<<<< HEAD
-=======
   Search,
   Filter,
   Heart,
@@ -46,7 +44,6 @@ import {
   Sparkles,
   Archive,
   X,
->>>>>>> dev
 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -925,9 +922,6 @@ export default function Home() {
   const [addNew, setAddNew] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-<<<<<<< HEAD
-  const [totalPost, settotalpost] = useState(0);
-=======
   const [totalPost, setTotalPost] = useState(0);
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("darkMode") === "true"
@@ -950,7 +944,6 @@ export default function Home() {
     localStorage.setItem("viewMode", viewMode);
   }, [viewMode]);
 
->>>>>>> dev
   const fetchPosts = async (page = 1) => {
     setLoading(true);
     try {
@@ -961,11 +954,7 @@ export default function Home() {
 
       setData(res.data.posts);
       setCurrentPage(res.data.currentPage);
-<<<<<<< HEAD
-      settotalpost(res.data.totalPosts);
-=======
       setTotalPost(res.data.totalPosts);
->>>>>>> dev
       setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch posts.");
@@ -1106,110 +1095,6 @@ export default function Home() {
   }, [user, navigate]);
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Important Alert Banner */}
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-amber-400 mt-0.5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-semibold text-amber-800">
-                Important Notice: Backend Restructure
-              </h3>
-              <div className="mt-2 text-sm text-amber-700">
-                <p>
-                  We're currently restructuring our backend system. Your data
-                  may be temporarily unavailable or lost during this process. If
-                  you need to preserve your important notes, please contact us
-                  at{" "}
-                  <a
-                    href="mailto:rajbhut2832005@gmail.com?subject=Data%20Backup%20Request%20-%20Paster%20App&body=Hi,%0A%0AI%20would%20like%20to%20request%20a%20backup%20of%20my%20data%20from%20the%20Paster%20app.%0A%0AUser%20ID:%20[Your%20User%20ID]%0AEmail:%20[Your%20Email]%0A%0AThank%20you!"
-                    className="text-amber-800 underline hover:text-amber-900 font-medium"
-                  >
-                    rajbhut2832005@gmail.com
-                  </a>{" "}
-                  before proceeding.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Header with improved styling */}
-        <header className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-6 border-b border-gray-200">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <div className="bg-blue-600 text-white p-2 rounded-lg mr-3">
-              <Code className="w-6 h-6" />
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
-              Paster
-            </h1>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setAddNew((prev) => !prev)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              {addNew ? (
-                <Minus className="w-4 h-4" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
-              {addNew ? "Hide Editor" : "New Note"}
-            </button>
-
-            <button
-              onClick={() => {
-                logout();
-                navigate("/");
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 space-y-6">
-            {addNew && (
-              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Create New Note
-                  </h2>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Title
-                    </label>
-                    <input
-                      id="title"
-                      type="text"
-                      placeholder="Enter descriptive title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="w-full px-4 py-2 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-=======
     <div
       className={`min-h-screen transition-colors duration-300 ${
         darkMode
@@ -1428,52 +1313,11 @@ export default function Home() {
                           ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                       } focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500`}
->>>>>>> dev
                     />
                   </div>
 
                   <div>
                     <label
-<<<<<<< HEAD
-                      htmlFor="content"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Content
-                    </label>
-                    <textarea
-                      id="content"
-                      ref={textarea}
-                      onChange={(e) => setText(e.target.value)}
-                      placeholder="Enter your code here..."
-                      className="w-full h-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm transition-colors"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2">
-                    <button
-                      onClick={addPost}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-                    >
-                      <Save className="w-4 h-4" />
-                      Save Note
-                    </button>
-                    <div className="flex items-center gap-2">
-                      <label className="flex items-center gap-2 text-gray-700 text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={burnAfterRead}
-                          onChange={() => setBurnAfterRead(!burnAfterRead)}
-                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-                        />
-                        <span>Burn After Read</span>
-                        {burnAfterRead ? (
-                          <EyeOff className="w-4 h-4 text-red-500" />
-                        ) : (
-                          <Eye className="w-4 h-4 text-gray-500" />
-                        )}
-                      </label>
-                    </div>
-=======
                       className={`block text-sm font-semibold mb-2 ${
                         darkMode ? "text-gray-300" : "text-gray-700"
                       }`}
@@ -1647,111 +1491,16 @@ export default function Home() {
                         {totalPost} notes total
                       </div>
                     )}
->>>>>>> dev
                   </div>
                 </div>
               </div>
 
-<<<<<<< HEAD
-            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Your Notes
-                </h2>
-                <div className="text-sm text-gray-500">
-                  {loading ? (
-                    <div className="flex items-center">
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Loading...
-                    </div>
-                  ) : (
-                    totalPost + " notes"
-                  )}
-                </div>
-              </div>
-              <div className="divide-y divide-gray-100">
-=======
               <div className="p-6">
->>>>>>> dev
                 <NotesSection
                   data={data}
                   user={user}
                   loading={loading}
                   onDelete={deletePost}
-<<<<<<< HEAD
-                />
-              </div>
-              <div className="bg-gray-50 px-6 py-3 border-t border-gray-100">
-                {renderPagination()}
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Editor Settings
-                </h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Language
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      >
-                        {languages.map((lang) => (
-                          <option key={lang} value={lang}>
-                            {lang}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Theme
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={style}
-                        onChange={(e) => setStyle(e.target.value)}
-                        className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      >
-                        {styles.map((sty) => (
-                          <option key={sty} value={sty}>
-                            {sty}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">Preview</h2>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Code className="w-4 h-4 mr-1" /> {language}
-                </div>
-              </div>
-              <div className="p-4 bg-gray-800 rounded-b-xl">
-                <CodeComponent text={text} language={language} style={style} />
-=======
                   darkMode={darkMode}
                   viewMode={viewMode}
                   searchTerm={searchTerm}
@@ -1848,34 +1597,11 @@ export default function Home() {
                   <LogOut className="w-4 h-4" />
                   Sign Out
                 </button>
->>>>>>> dev
               </div>
             </div>
           </div>
         </div>
 
-<<<<<<< HEAD
-        <footer className="mt-12 py-6 border-t border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm">
-              © 2024 Paster. All rights reserved
-            </p>
-            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-              <a
-                href="mailto:rajbhut2832005@gmail.com"
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-                aria-label="Email"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
-              <a
-                href="https://github.com/RajBhut"
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-=======
         {/* Enhanced Footer */}
         <footer className="mt-12 py-8">
           <div
@@ -1911,7 +1637,6 @@ export default function Home() {
                   <Github className="w-5 h-5" />
                 </a>
               </div>
->>>>>>> dev
             </div>
           </div>
         </footer>
