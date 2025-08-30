@@ -41,7 +41,6 @@ import {
   Copy,
   ExternalLink,
   FileText,
-  Sparkles,
   Archive,
   X,
 } from "lucide-react";
@@ -363,10 +362,18 @@ const NoteCard = ({
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: post.title,
-        url: `/page/${post.id}`,
-      });
+      try {
+        await navigator.share({
+          title: post.title,
+          url: `${window.location.origin}/page/${post.id}`,
+        });
+      } catch (error) {
+        // User cancelled sharing or error occurred
+        navigator.clipboard.writeText(
+          `${window.location.origin}/page/${post.id}`
+        );
+        toast.info("Link copied to clipboard!");
+      }
     } else {
       navigator.clipboard.writeText(
         `${window.location.origin}/page/${post.id}`
@@ -395,8 +402,6 @@ const NoteCard = ({
           darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } rounded-xl border hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden`}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
         <div className="relative p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -558,6 +563,7 @@ const NoteCard = ({
                     ? "text-gray-400 hover:text-red-400"
                     : "text-gray-400 hover:text-red-500"
                 }`}
+                title="Like feature coming soon!"
               >
                 <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
               </button>
@@ -580,6 +586,7 @@ const NoteCard = ({
                     ? "text-gray-400 hover:text-yellow-400"
                     : "text-gray-400 hover:text-yellow-500"
                 }`}
+                title="Bookmark feature coming soon!"
               >
                 <Bookmark
                   className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
@@ -651,6 +658,7 @@ const NoteCard = ({
               ? "text-gray-400 hover:text-red-400"
               : "text-gray-400 hover:text-red-500"
           }`}
+          title="Like feature coming soon!"
         >
           <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
         </button>
@@ -673,6 +681,7 @@ const NoteCard = ({
               ? "text-gray-400 hover:text-yellow-400"
               : "text-gray-400 hover:text-yellow-500"
           }`}
+          title="Bookmark feature coming soon!"
         >
           <Bookmark
             className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
@@ -745,6 +754,8 @@ const NotesSection = ({
       toast.success("Added to bookmarks");
     }
     setBookmarkedNotes(newBookmarks);
+    // TODO: Implement actual bookmark functionality with backend
+    toast.info("Bookmark feature coming soon!");
   };
 
   const filteredData = data.filter((post) => {
@@ -787,10 +798,10 @@ const NotesSection = ({
       <div className="flex flex-col items-center justify-center py-12">
         <div className="relative">
           <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-          <Sparkles className="w-6 h-6 text-blue-500 absolute inset-0 m-auto animate-pulse" />
+          <FileText className="w-6 h-6 text-blue-500 absolute inset-0 m-auto animate-pulse" />
         </div>
         <p className={`mt-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Loading your amazing notes...
+          Loading your notes...
         </p>
       </div>
     );
@@ -823,7 +834,7 @@ const NotesSection = ({
             : "Create your first note and start sharing your code!"}
         </p>
         {!searchTerm && !selectedLanguage && (
-          <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center gap-2 mx-auto">
+          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 mx-auto">
             <Plus className="w-5 h-5" />
             Create Your First Note
           </button>
@@ -935,6 +946,9 @@ export default function Home() {
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [description, setDescription] = useState("");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("darkMode", darkMode);
@@ -975,11 +989,12 @@ export default function Home() {
     ) {
       pageNumbers.push(
         <button
-          key={i}
-          onClick={() => fetchPosts(i)}
+          onClick={() =>
+            setCurrentPage(currentPage === i ? currentPage : fetchPosts(i))
+          }
           className={`px-4 py-2 mx-1 rounded-lg font-medium transition-colors ${
             currentPage === i
-              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+              ? "bg-blue-600 text-white shadow-lg"
               : darkMode
               ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -1021,12 +1036,15 @@ export default function Home() {
   };
 
   const logout = async () => {
+    setIsLoggingOut(true);
     try {
       await axios.post(`${API_URL}/user/logout`, {}, { withCredentials: true });
       setuser(null);
       toast.success("Logged out successfully!");
     } catch (error) {
       toast.error("Failed to logout.");
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -1036,6 +1054,7 @@ export default function Home() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const res = await axios.post(
         `${API_URL}/post`,
@@ -1064,6 +1083,8 @@ export default function Home() {
         navigate("/");
       }
       toast.error("Failed to add note.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1094,6 +1115,19 @@ export default function Home() {
     if (!user) navigate("/");
   }, [user, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserMenu && !event.target.closest(".user-menu-container")) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showUserMenu]);
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -1115,7 +1149,9 @@ export default function Home() {
               <div className="flex items-center gap-4">
                 <div>
                   <h1
-                    className={`text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent`}
+                    className={`text-4xl font-bold ${
+                      darkMode ? "text-white" : "text-gray-900"
+                    }`}
                   >
                     Paster
                   </h1>
@@ -1152,7 +1188,7 @@ export default function Home() {
                       ? darkMode
                         ? "bg-red-600 hover:bg-red-700 text-white"
                         : "bg-red-500 hover:bg-red-600 text-white"
-                      : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl"
+                      : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-xl"
                   }`}
                 >
                   {addNew ? (
@@ -1163,7 +1199,7 @@ export default function Home() {
                   {addNew ? "Cancel" : "New Note"}
                 </button>
 
-                <div className="relative">
+                <div className="relative user-menu-container">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className={`flex items-center gap-2 px-4 py-3 rounded-xl transition-colors ${
@@ -1172,11 +1208,67 @@ export default function Home() {
                         : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
                   >
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                       {user?.name?.charAt(0).toUpperCase()}
                     </div>
                     <ChevronDown className="w-4 h-4" />
                   </button>
+
+                  {showUserMenu && (
+                    <div
+                      className={`absolute right-0 top-full mt-2 ${
+                        darkMode
+                          ? "bg-gray-800 border-gray-700"
+                          : "bg-white border-gray-200"
+                      } rounded-lg shadow-xl border py-2 w-48 z-20`}
+                    >
+                      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                        <p
+                          className={`font-medium ${
+                            darkMode ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {user?.name || "User"}
+                        </p>
+                        <p
+                          className={`text-sm ${
+                            darkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          {user?.email || ""}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          toast.info("Profile settings coming soon!");
+                        }}
+                        className={`w-full px-4 py-2 text-sm text-left transition-colors ${
+                          darkMode
+                            ? "text-gray-300 hover:bg-gray-700"
+                            : "text-gray-700 hover:bg-gray-100"
+                        } flex items-center gap-2`}
+                      >
+                        <Settings className="w-4 h-4" />
+                        Profile Settings
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          logout();
+                        }}
+                        disabled={isLoggingOut}
+                        className={`w-full px-4 py-2 text-sm text-left transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 disabled:opacity-50`}
+                      >
+                        {isLoggingOut ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <LogOut className="w-4 h-4" />
+                        )}
+                        {isLoggingOut ? "Signing Out..." : "Sign Out"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1284,11 +1376,9 @@ export default function Home() {
                 : "bg-white/80 border-gray-200"
             } backdrop-blur-xl rounded-2xl border shadow-xl mb-8 overflow-hidden`}
           >
-            <div
-              className={`bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4`}
-            >
+            <div className={`bg-blue-600 px-6 py-4`}>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-6 h-6" />
+                <Code className="w-6 h-6" />
                 Create Something Amazing
               </h2>
             </div>
@@ -1437,10 +1527,15 @@ export default function Home() {
 
                 <button
                   onClick={addPost}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                  disabled={isSubmitting || !text || !title}
+                  className="flex items-center gap-2 px-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-5 h-5" />
-                  Create Note
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Save className="w-5 h-5" />
+                  )}
+                  {isSubmitting ? "Creating..." : "Create Note"}
                 </button>
               </div>
             </div>
@@ -1557,20 +1652,21 @@ export default function Home() {
             <div
               className={`${
                 darkMode
-                  ? "bg-gray-800/50 border-gray-700"
-                  : "bg-white/80 border-gray-200"
-              } backdrop-blur-xl rounded-2xl border shadow-xl p-6`}
+                  ? "bg-gray-800/30 border-gray-700"
+                  : "bg-white/50 border-gray-200"
+              } backdrop-blur-xl rounded-2xl border p-6`}
             >
               <h3
                 className={`font-bold mb-4 ${
                   darkMode ? "text-white" : "text-gray-900"
                 } flex items-center gap-2`}
               >
-                <Zap className="w-5 h-5 text-yellow-500" />
+                <Settings className="w-5 h-5 text-blue-500" />
                 Quick Actions
               </h3>
               <div className="space-y-3">
                 <button
+                  onClick={() => toast.info("Export feature coming soon!")}
                   className={`w-full p-3 rounded-lg text-left transition-colors ${
                     darkMode
                       ? "hover:bg-gray-700 text-gray-300"
@@ -1581,6 +1677,7 @@ export default function Home() {
                   Export All Notes
                 </button>
                 <button
+                  onClick={() => toast.info("Backup feature coming soon!")}
                   className={`w-full p-3 rounded-lg text-left transition-colors ${
                     darkMode
                       ? "hover:bg-gray-700 text-gray-300"
@@ -1592,10 +1689,15 @@ export default function Home() {
                 </button>
                 <button
                   onClick={logout}
-                  className={`w-full p-3 rounded-lg text-left transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3`}
+                  disabled={isLoggingOut}
+                  className={`w-full p-3 rounded-lg text-left transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {isLoggingOut ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  {isLoggingOut ? "Signing Out..." : "Sign Out"}
                 </button>
               </div>
             </div>
