@@ -18,8 +18,6 @@ export default function Loginc() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    check_valid_user();
-
     if (localStorage.getItem("user")) {
       setuser(JSON.parse(localStorage.getItem("user")));
     }
