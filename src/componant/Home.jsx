@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -54,6 +55,118 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import { languages, styles } from "./const";
 const API_URL = import.meta.env.VITE_API_URL;
+
+const SearchDropdown = ({
+  show,
+  searchResults,
+  darkMode,
+  onClose,
+  searchContainer,
+}) => {
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    if (show && searchContainer) {
+      const rect = searchContainer.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [show, searchContainer]);
+
+  if (!show) return null;
+
+  return createPortal(
+    <div
+      className={`fixed ${
+        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      } rounded-xl border shadow-2xl max-h-96 overflow-y-auto z-[99999]`}
+      style={{
+        top: position.top,
+        left: position.left,
+        width: position.width,
+        zIndex: 99999,
+      }}
+    >
+      <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <span
+            className={`text-sm font-medium ${
+              darkMode ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            Search Results ({searchResults.length})
+          </span>
+          <button
+            onClick={onClose}
+            className={`p-1 rounded-lg transition-colors ${
+              darkMode
+                ? "hover:bg-gray-700 text-gray-400"
+                : "hover:bg-gray-100 text-gray-500"
+            }`}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div className="p-2 max-h-80 overflow-y-auto">
+        {searchResults.map((post) => (
+          <Link
+            key={post.id}
+            to={`/page/${post.id}`}
+            onClick={onClose}
+            className={`block p-3 rounded-lg transition-colors ${
+              darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Code className="w-4 h-4 text-blue-500 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h4
+                  className={`font-medium truncate ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {post.title}
+                </h4>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span
+                    className={`text-xs px-2 py-1 rounded ${
+                      darkMode
+                        ? "bg-gray-700 text-gray-300"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {post.language}
+                  </span>
+                  <span
+                    className={`text-xs ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                {post.description && (
+                  <p
+                    className={`text-xs mt-1 line-clamp-2 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {post.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>,
+    document.body
+  );
+};
 
 const NoteCard = ({
   post,
@@ -450,7 +563,6 @@ const NotesSection = ({
   loading,
   darkMode,
   viewMode,
-  searchTerm,
   selectedLanguage,
   selectedTag,
   sortBy,
@@ -471,12 +583,6 @@ const NotesSection = ({
   };
 
   const filteredData = data.filter((post) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.description?.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesLanguage =
       selectedLanguage === "" || post.language === selectedLanguage;
 
@@ -487,7 +593,7 @@ const NotesSection = ({
           tag.toLowerCase().includes(selectedTag.toLowerCase())
         ));
 
-    return matchesSearch && matchesLanguage && matchesTag;
+    return matchesLanguage && matchesTag;
   });
 
   const sortedData = [...filteredData].sort((a, b) => {
@@ -507,48 +613,88 @@ const NotesSection = ({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-16">
         <div className="relative">
           <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
           <FileText className="w-6 h-6 text-blue-500 absolute inset-0 m-auto animate-pulse" />
         </div>
-        <p className={`mt-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+        <p
+          className={`mt-4 text-lg ${
+            darkMode ? "text-gray-400" : "text-gray-600"
+          }`}
+        >
           Loading your notes...
         </p>
+        <div className="flex items-center gap-2 mt-2">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div
+            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0.1s" }}
+          ></div>
+          <div
+            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
+        </div>
       </div>
     );
   }
 
   if (sortedData.length === 0 && user) {
+    const isFiltering = selectedLanguage || selectedTag;
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-16">
         <div
           className={`w-24 h-24 mx-auto mb-6 rounded-full ${
             darkMode ? "bg-gray-700" : "bg-gray-100"
           } flex items-center justify-center`}
         >
-          <FileText
-            className={`w-12 h-12 ${
-              darkMode ? "text-gray-500" : "text-gray-400"
-            }`}
-          />
+          {isFiltering ? (
+            <Search
+              className={`w-12 h-12 ${
+                darkMode ? "text-gray-500" : "text-gray-400"
+              }`}
+            />
+          ) : (
+            <FileText
+              className={`w-12 h-12 ${
+                darkMode ? "text-gray-500" : "text-gray-400"
+              }`}
+            />
+          )}
         </div>
         <h3
           className={`text-xl font-semibold mb-2 ${
             darkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          {searchTerm || selectedLanguage ? "No notes found" : "No notes yet"}
+          {isFiltering ? "No notes found" : "No notes yet"}
         </h3>
-        <p className={`${darkMode ? "text-gray-400" : "text-gray-500"} mb-6`}>
-          {searchTerm || selectedLanguage
-            ? "Try adjusting your search filters"
-            : "Create your first note and start sharing your code!"}
+        <p
+          className={`${
+            darkMode ? "text-gray-400" : "text-gray-500"
+          } mb-6 max-w-md mx-auto`}
+        >
+          {isFiltering
+            ? "Try adjusting your filters or creating a new note with these criteria"
+            : "Create your first note and start sharing your code with the world!"}
         </p>
-        {!searchTerm && !selectedLanguage && (
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 mx-auto">
+        {!isFiltering && (
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 mx-auto"
+          >
             <Plus className="w-5 h-5" />
             Create Your First Note
+          </button>
+        )}
+        {isFiltering && (
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 flex items-center gap-2 mx-auto"
+          >
+            <Filter className="w-5 h-5" />
+            Adjust Filters Above
           </button>
         )}
       </div>
@@ -640,6 +786,7 @@ export default function Home() {
   const [language, setLanguage] = useState("javascript");
   const [style, setStyle] = useState("atomOneDark");
   const textarea = useRef(null);
+  const searchContainerRef = useRef(null);
   const [title, setTitle] = useState("");
   const [burnAfterRead, setBurnAfterRead] = useState(false);
   const [addNew, setAddNew] = useState(false);
@@ -970,6 +1117,20 @@ export default function Home() {
     };
   }, [showUserMenu]);
 
+  // Handle clicks outside search dropdown
+  useEffect(() => {
+    const handleClickOutsideSearch = (event) => {
+      if (showSearchResults && !event.target.closest(".search-container")) {
+        setShowSearchResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideSearch);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSearch);
+    };
+  }, [showSearchResults]);
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -1116,7 +1277,11 @@ export default function Home() {
             </div>
 
             <div className="mt-6 flex flex-col lg:flex-row gap-4">
-              <div className="flex-1 relative">
+              <div
+                ref={searchContainerRef}
+                className="flex-1 relative search-container"
+                style={{ zIndex: 1000 }}
+              >
                 <Search
                   className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
                     darkMode ? "text-gray-400" : "text-gray-500"
@@ -1151,83 +1316,73 @@ export default function Home() {
                   )}
                 </button>
 
-                {/* Search Results Dropdown */}
-                {showSearchResults && searchResults.length > 0 && (
+                {/* Search Results now rendered via Portal */}
+
+                {isSearching && searchTerm && (
                   <div
                     className={`absolute top-full left-0 right-0 mt-2 ${
                       darkMode
                         ? "bg-gray-800 border-gray-700"
                         : "bg-white border-gray-200"
-                    } rounded-xl border shadow-xl z-20 max-h-96 overflow-y-auto`}
+                    } rounded-xl border shadow-xl p-4 z-[99999]`}
+                    style={{ zIndex: 99999, position: "absolute" }}
                   >
-                    <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`text-sm font-medium ${
-                            darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
-                          Search Results ({searchResults.length})
-                        </span>
-                        <button
-                          onClick={() => setShowSearchResults(false)}
-                          className={`p-1 rounded-lg transition-colors ${
-                            darkMode
-                              ? "hover:bg-gray-700 text-gray-400"
-                              : "hover:bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-2">
-                      {searchResults.map((post) => (
-                        <Link
-                          key={post.id}
-                          to={`/page/${post.id}`}
-                          onClick={() => setShowSearchResults(false)}
-                          className={`block p-3 rounded-lg transition-colors ${
-                            darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Code className="w-4 h-4 text-blue-500" />
-                            <div className="flex-1 min-w-0">
-                              <h4
-                                className={`font-medium truncate ${
-                                  darkMode ? "text-white" : "text-gray-900"
-                                }`}
-                              >
-                                {post.title}
-                              </h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span
-                                  className={`text-xs px-2 py-1 rounded ${
-                                    darkMode
-                                      ? "bg-gray-700 text-gray-300"
-                                      : "bg-gray-100 text-gray-600"
-                                  }`}
-                                >
-                                  {post.language}
-                                </span>
-                                <span
-                                  className={`text-xs ${
-                                    darkMode ? "text-gray-400" : "text-gray-500"
-                                  }`}
-                                >
-                                  {new Date(
-                                    post.createdAt
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                      <span
+                        className={`text-sm ${
+                          darkMode ? "text-gray-300" : "text-gray-700"
+                        }`}
+                      >
+                        Searching for "{searchTerm}"...
+                      </span>
                     </div>
                   </div>
                 )}
+
+                {/* No Search Results */}
+                {searchTerm &&
+                  !isSearching &&
+                  searchResults.length === 0 &&
+                  !showSearchResults && (
+                    <div
+                      className={`absolute top-full left-0 right-0 mt-2 ${
+                        darkMode
+                          ? "bg-gray-800 border-gray-700"
+                          : "bg-white border-gray-200"
+                      } rounded-xl border shadow-xl p-4 z-[99999]`}
+                      style={{ zIndex: 99999, position: "absolute" }}
+                    >
+                      <div className="text-center">
+                        <Search
+                          className={`w-8 h-8 mx-auto mb-2 ${
+                            darkMode ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        />
+                        <p
+                          className={`text-sm ${
+                            darkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          No results found for "{searchTerm}"
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSearchTerm("");
+                            setSearchResults([]);
+                            setShowSearchResults(false);
+                          }}
+                          className={`text-xs mt-2 px-3 py-1 rounded-lg transition-colors ${
+                            darkMode
+                              ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                              : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          Clear search
+                        </button>
+                      </div>
+                    </div>
+                  )}
               </div>
 
               <div className="flex-1 relative lg:max-w-xs">
@@ -1634,9 +1789,7 @@ export default function Home() {
                         } flex items-center gap-2`}
                       >
                         <BarChart3 className="w-4 h-4" />
-                        {showSearchResults && searchResults.length > 0
-                          ? `${searchResults.length} search results`
-                          : `${totalPost} notes total`}
+                        {`${totalPost} notes total`}
                       </div>
                     )}
                   </div>
@@ -1645,24 +1798,19 @@ export default function Home() {
 
               <div className="p-6">
                 <NotesSection
-                  data={
-                    showSearchResults && searchResults.length > 0
-                      ? searchResults
-                      : data
-                  }
+                  data={data}
                   user={user}
-                  loading={loading || isSearching}
+                  loading={loading}
                   onDelete={deletePost}
                   darkMode={darkMode}
                   viewMode={viewMode}
-                  searchTerm={searchTerm}
                   selectedLanguage={selectedLanguage}
                   selectedTag={selectedTag}
                   sortBy={sortBy}
                 />
               </div>
 
-              {totalPages > 1 && !showSearchResults && (
+              {totalPages > 1 && (
                 <div
                   className={`px-6 py-4 border-t ${
                     darkMode
@@ -1812,6 +1960,19 @@ export default function Home() {
           pauseOnHover
           theme={darkMode ? "dark" : "light"}
           className="!z-50"
+        />
+
+        {/* Portal-based Search Dropdown */}
+        <SearchDropdown
+          show={showSearchResults && searchResults.length > 0}
+          searchResults={searchResults}
+          darkMode={darkMode}
+          onClose={() => {
+            setShowSearchResults(false);
+            setSearchTerm("");
+            setSearchResults([]);
+          }}
+          searchContainer={searchContainerRef.current}
         />
       </div>
     </div>
