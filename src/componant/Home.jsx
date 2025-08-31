@@ -1,10 +1,17 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, {
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Usercontext } from "./UsrProvider";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import * as hljsStyles from "react-syntax-highlighter/dist/esm/styles/hljs";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import debounce from "lodash.debounce";
 import {
   Plus,
   Minus,
@@ -45,301 +52,7 @@ import {
   X,
 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-
-const languages = [
-  "oneC",
-  "abnf",
-  "accesslog",
-  "actionscript",
-  "ada",
-  "angelscript",
-  "apache",
-  "applescript",
-  "arcade",
-  "arduino",
-  "armasm",
-  "asciidoc",
-  "aspectj",
-  "autohotkey",
-  "autoit",
-  "avrasm",
-  "awk",
-  "axapta",
-  "bash",
-  "basic",
-  "bnf",
-  "brainfuck",
-  "c-like",
-  "c",
-  "cal",
-  "capnproto",
-  "ceylon",
-  "clean",
-  "clojure-repl",
-  "clojure",
-  "cmake",
-  "coffeescript",
-  "coq",
-  "cos",
-  "cpp",
-  "crmsh",
-  "crystal",
-  "csharp",
-  "csp",
-  "css",
-  "d",
-  "dart",
-  "delphi",
-  "diff",
-  "django",
-  "dns",
-  "dockerfile",
-  "dos",
-  "dsconfig",
-  "dts",
-  "dust",
-  "ebnf",
-  "elixir",
-  "elm",
-  "erb",
-  "erlang-repl",
-  "erlang",
-  "excel",
-  "fix",
-  "flix",
-  "fortran",
-  "fsharp",
-  "gams",
-  "gauss",
-  "gcode",
-  "gherkin",
-  "glsl",
-  "gml",
-  "go",
-  "golo",
-  "gradle",
-  "groovy",
-  "haml",
-  "handlebars",
-  "haskell",
-  "haxe",
-  "hsp",
-  "htmlbars",
-  "http",
-  "hy",
-  "inform7",
-  "ini",
-  "irpf90",
-  "isbl",
-  "java",
-  "javascript",
-  "jboss-cli",
-  "json",
-  "julia-repl",
-  "julia",
-  "kotlin",
-  "lasso",
-  "latex",
-  "ldif",
-  "leaf",
-  "less",
-  "lisp",
-  "livecodeserver",
-  "livescript",
-  "llvm",
-  "lsl",
-  "lua",
-  "makefile",
-  "markdown",
-  "mathematica",
-  "matlab",
-  "maxima",
-  "mel",
-  "mercury",
-  "mipsasm",
-  "mizar",
-  "mojolicious",
-  "monkey",
-  "moonscript",
-  "n1ql",
-  "nginx",
-  "nim",
-  "nix",
-  "node-repl",
-  "nsis",
-  "objectivec",
-  "ocaml",
-  "openscad",
-  "oxygene",
-  "parser3",
-  "perl",
-  "pf",
-  "pgsql",
-  "php-template",
-  "php",
-  "plaintext",
-  "pony",
-  "powershell",
-  "processing",
-  "profile",
-  "prolog",
-  "properties",
-  "protobuf",
-  "puppet",
-  "purebasic",
-  "python-repl",
-  "python",
-  "q",
-  "qml",
-  "r",
-  "reasonml",
-  "rib",
-  "roboconf",
-  "routeros",
-  "rsl",
-  "ruby",
-  "ruleslanguage",
-  "rust",
-  "sas",
-  "scala",
-  "scheme",
-  "scilab",
-  "scss",
-  "shell",
-  "smali",
-  "smalltalk",
-  "sml",
-  "sqf",
-  "sql",
-  "sql_more",
-  "stan",
-  "stata",
-  "step21",
-  "stylus",
-  "subunit",
-  "swift",
-  "taggerscript",
-  "tap",
-  "tcl",
-  "thrift",
-  "tp",
-  "twig",
-  "typescript",
-  "vala",
-  "vbnet",
-  "vbscript-html",
-  "vbscript",
-  "verilog",
-  "vhdl",
-  "vim",
-  "x86asm",
-  "xl",
-  "xml",
-  "xquery",
-  "yaml",
-  "zephir",
-];
-
-const styles = [
-  "a11yDark",
-  "a11yLight",
-  "agate",
-  "anOldHope",
-  "androidstudio",
-  "arduinoLight",
-  "arta",
-  "ascetic",
-  "atelierCaveDark",
-  "atelierCaveLight",
-  "atelierDuneDark",
-  "atelierDuneLight",
-  "atelierEstuaryDark",
-  "atelierEstuaryLight",
-  "atelierForestDark",
-  "atelierForestLight",
-  "atelierHeathDark",
-  "atelierHeathLight",
-  "atelierLakesideDark",
-  "atelierLakesideLight",
-  "atelierPlateauDark",
-  "atelierPlateauLight",
-  "atelierSavannaDark",
-  "atelierSavannaLight",
-  "atelierSeasideDark",
-  "atelierSeasideLight",
-  "atelierSulphurpoolDark",
-  "atelierSulphurpoolLight",
-  "atomOneDarkReasonable",
-  "atomOneDark",
-  "atomOneLight",
-  "brownPaper",
-  "codepenEmbed",
-  "colorBrewer",
-  "darcula",
-  "dark",
-  "defaultStyle",
-  "docco",
-  "dracula",
-  "far",
-  "foundation",
-  "githubGist",
-  "github",
-  "gml",
-  "googlecode",
-  "gradientDark",
-  "gradientLight",
-  "grayscale",
-  "gruvboxDark",
-  "gruvboxLight",
-  "hopscotch",
-  "hybrid",
-  "idea",
-  "irBlack",
-  "isblEditorDark",
-  "isblEditorLight",
-  "kimbieDark",
-  "kimbieLight",
-  "lightfair",
-  "lioshi",
-  "magula",
-  "monoBlue",
-  "monokaiSublime",
-  "monokai",
-  "nightOwl",
-  "nnfxDark",
-  "nnfx",
-  "nord",
-  "obsidian",
-  "ocean",
-  "paraisoDark",
-  "paraisoLight",
-  "pojoaque",
-  "purebasic",
-  "qtcreatorDark",
-  "qtcreatorLight",
-  "railscasts",
-  "rainbow",
-  "routeros",
-  "schoolBook",
-  "shadesOfPurple",
-  "solarizedDark",
-  "solarizedLight",
-  "srcery",
-  "stackoverflowDark",
-  "stackoverflowLight",
-  "sunburst",
-  "tomorrowNightBlue",
-  "tomorrowNightBright",
-  "tomorrowNightEighties",
-  "tomorrowNight",
-  "tomorrow",
-  "vs",
-  "vs2015",
-  "xcode",
-  "xt256",
-  "zenburn",
-];
-
+import { languages, styles } from "./const";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const NoteCard = ({
@@ -404,7 +117,7 @@ const NoteCard = ({
       >
         <div className="relative p-6">
           <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
+            <div className="flex-1 ">
               <Link to={`/page/${post.id}`} className="block">
                 <h4
                   className={`font-semibold text-lg mb-2 line-clamp-2 ${
@@ -554,7 +267,7 @@ const NoteCard = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={() => setLiked(!liked)}
                 className={`p-2 rounded-full transition-colors ${
                   liked
@@ -566,8 +279,8 @@ const NoteCard = ({
                 title="Like feature coming soon!"
               >
                 <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 onClick={handleShare}
                 className={`p-2 rounded-full transition-colors ${
                   darkMode
@@ -576,7 +289,7 @@ const NoteCard = ({
                 }`}
               >
                 <Share2 className="w-4 h-4" />
-              </button>
+              </button> */}
               <button
                 onClick={() => onBookmark(post.id)}
                 className={`p-2 rounded-full transition-colors ${
@@ -754,7 +467,6 @@ const NotesSection = ({
       toast.success("Added to bookmarks");
     }
     setBookmarkedNotes(newBookmarks);
-    // TODO: Implement actual bookmark functionality with backend
     toast.info("Bookmark feature coming soon!");
   };
 
@@ -943,12 +655,21 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [sortBy, setSortBy] = useState("newest");
-  const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [description, setDescription] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Search functionality
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
+  // Tag functionality
+  const [tagInput, setTagInput] = useState("");
+  const [noteTags, setNoteTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
 
   useEffect(() => {
     localStorage.setItem("darkMode", darkMode);
@@ -957,6 +678,119 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("viewMode", viewMode);
   }, [viewMode]);
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce(async (searchTerm) => {
+      if (searchTerm.trim() === "") {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const res = await axios.get(`${API_URL}/post/search`, {
+          withCredentials: true,
+          params: {
+            q: searchTerm,
+            limit: 10,
+          },
+        });
+        setSearchResults(res.data.posts || res.data || []);
+        setShowSearchResults(true);
+        console.log("Search results:", res.data);
+      } catch (error) {
+        console.error("Search failed:", error);
+        toast.error("Search failed. Please try again.");
+        setSearchResults([]);
+        setShowSearchResults(false);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300),
+    []
+  );
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSearch(value);
+  };
+
+  // Manual search function (for search button)
+  const handle_search = async () => {
+    if (searchTerm.trim() === "") {
+      toast.warning("Please enter a search term");
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const res = await axios.get(`${API_URL}/post/search`, {
+        withCredentials: true,
+        params: {
+          q: searchTerm,
+          limit: 20,
+        },
+      });
+      setSearchResults(res.data.posts || res.data || []);
+      setShowSearchResults(true);
+      console.log("Search results:", res.data);
+      toast.success(
+        `Found ${(res.data.posts || res.data || []).length} results`
+      );
+    } catch (error) {
+      console.error("Error searching results:", error);
+      toast.error("Search failed. Please try again.");
+      setSearchResults([]);
+      setShowSearchResults(false);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Tag management functions
+  const addTag = () => {
+    if (tagInput.trim() && !noteTags.includes(tagInput.trim())) {
+      setNoteTags([...noteTags, tagInput.trim()]);
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setNoteTags(noteTags.filter((tag) => tag !== tagToRemove));
+  };
+
+  const handleTagKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag();
+    } else if (e.key === "," && tagInput.trim()) {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  // Fetch available tags from existing posts
+  const fetchAvailableTags = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/post/tags`, {
+        withCredentials: true,
+      });
+      setAvailableTags(res.data.tags || []);
+    } catch (error) {
+      console.error("Failed to fetch tags:", error);
+    }
+  };
+
+  // Clear search results
+  const clearSearch = () => {
+    setSearchTerm("");
+    setSearchResults([]);
+    setShowSearchResults(false);
+  };
 
   const fetchPosts = async (page = 1) => {
     setLoading(true);
@@ -1040,6 +874,9 @@ export default function Home() {
     try {
       await axios.post(`${API_URL}/user/logout`, {}, { withCredentials: true });
       setuser(null);
+      localStorage.removeItem("user");
+      navigate("/");
+
       toast.success("Logged out successfully!");
     } catch (error) {
       toast.error("Failed to logout.");
@@ -1064,7 +901,8 @@ export default function Home() {
           userId: user.id,
           bar: burnAfterRead,
           language,
-          tags: selectedTag ? [selectedTag] : [],
+          tags:
+            noteTags.length > 0 ? noteTags : selectedTag ? [selectedTag] : [],
           description,
         },
         { withCredentials: true }
@@ -1075,7 +913,10 @@ export default function Home() {
       setTitle("");
       setDescription("");
       setSelectedTag("");
+      setNoteTags([]);
+      setTagInput("");
       fetchPosts(1);
+      fetchAvailableTags(); // Refresh available tags
       toast.success("Note created successfully! 🎉");
       setAddNew(false);
     } catch (error) {
@@ -1109,6 +950,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchPosts();
+    fetchAvailableTags();
   }, []);
 
   useEffect(() => {
@@ -1273,7 +1115,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Search and Filter Bar */}
             <div className="mt-6 flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search
@@ -1285,13 +1126,108 @@ export default function Home() {
                   type="text"
                   placeholder="Search your notes..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={`w-full pl-12 pr-4 py-3 rounded-xl border transition-all duration-200 ${
+                  onChange={handleSearchChange}
+                  className={`w-full pl-12 pr-20 py-3 rounded-xl border transition-all duration-200 ${
                     darkMode
                       ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500"
                   } focus:ring-2 focus:ring-blue-500/20`}
                 />
+                <button
+                  onClick={handle_search}
+                  disabled={isSearching || !searchTerm.trim()}
+                  className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    isSearching || !searchTerm.trim()
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : darkMode
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-blue-500 hover:bg-blue-600 text-white"
+                  }`}
+                >
+                  {isSearching ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Search"
+                  )}
+                </button>
+
+                {/* Search Results Dropdown */}
+                {showSearchResults && searchResults.length > 0 && (
+                  <div
+                    className={`absolute top-full left-0 right-0 mt-2 ${
+                      darkMode
+                        ? "bg-gray-800 border-gray-700"
+                        : "bg-white border-gray-200"
+                    } rounded-xl border shadow-xl z-20 max-h-96 overflow-y-auto`}
+                  >
+                    <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-sm font-medium ${
+                            darkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          Search Results ({searchResults.length})
+                        </span>
+                        <button
+                          onClick={() => setShowSearchResults(false)}
+                          className={`p-1 rounded-lg transition-colors ${
+                            darkMode
+                              ? "hover:bg-gray-700 text-gray-400"
+                              : "hover:bg-gray-100 text-gray-500"
+                          }`}
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      {searchResults.map((post) => (
+                        <Link
+                          key={post.id}
+                          to={`/page/${post.id}`}
+                          onClick={() => setShowSearchResults(false)}
+                          className={`block p-3 rounded-lg transition-colors ${
+                            darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Code className="w-4 h-4 text-blue-500" />
+                            <div className="flex-1 min-w-0">
+                              <h4
+                                className={`font-medium truncate ${
+                                  darkMode ? "text-white" : "text-gray-900"
+                                }`}
+                              >
+                                {post.title}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span
+                                  className={`text-xs px-2 py-1 rounded ${
+                                    darkMode
+                                      ? "bg-gray-700 text-gray-300"
+                                      : "bg-gray-100 text-gray-600"
+                                  }`}
+                                >
+                                  {post.language}
+                                </span>
+                                <span
+                                  className={`text-xs ${
+                                    darkMode ? "text-gray-400" : "text-gray-500"
+                                  }`}
+                                >
+                                  {new Date(
+                                    post.createdAt
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 relative lg:max-w-xs">
@@ -1425,6 +1361,107 @@ export default function Home() {
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                       } focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500`}
                     />
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-sm font-semibold mb-2 ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Tags
+                    </label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Add tags (press Enter or comma to add)"
+                          value={tagInput}
+                          onChange={(e) => setTagInput(e.target.value)}
+                          onKeyPress={handleTagKeyPress}
+                          className={`flex-1 px-4 py-2 rounded-lg border transition-all ${
+                            darkMode
+                              ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                              : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                          } focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500`}
+                        />
+                        <button
+                          type="button"
+                          onClick={addTag}
+                          disabled={!tagInput.trim()}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            !tagInput.trim()
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : darkMode
+                              ? "bg-blue-600 hover:bg-blue-700 text-white"
+                              : "bg-blue-500 hover:bg-blue-600 text-white"
+                          }`}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Display added tags */}
+                      {noteTags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {noteTags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm ${
+                                darkMode
+                                  ? "bg-blue-600 text-white"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              #{tag}
+                              <button
+                                type="button"
+                                onClick={() => removeTag(tag)}
+                                className="ml-1 hover:text-red-500 transition-colors"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Suggested tags */}
+                      {availableTags.length > 0 && (
+                        <div className="mt-2">
+                          <p
+                            className={`text-xs ${
+                              darkMode ? "text-gray-400" : "text-gray-600"
+                            } mb-2`}
+                          >
+                            Popular tags:
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {availableTags.slice(0, 10).map((tag, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => {
+                                  if (!noteTags.includes(tag)) {
+                                    setNoteTags([...noteTags, tag]);
+                                  }
+                                }}
+                                disabled={noteTags.includes(tag)}
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  noteTags.includes(tag)
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : darkMode
+                                    ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                }`}
+                              >
+                                #{tag}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -1561,11 +1598,25 @@ export default function Home() {
                         darkMode ? "text-white" : "text-gray-900"
                       }`}
                     >
-                      Your Notes
+                      {showSearchResults && searchResults.length > 0
+                        ? "Search Results"
+                        : "Your Notes"}
                     </h2>
+                    {showSearchResults && searchResults.length > 0 && (
+                      <button
+                        onClick={clearSearch}
+                        className={`text-sm px-3 py-1 rounded-lg transition-colors ${
+                          darkMode
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                            : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        Clear Search
+                      </button>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
-                    {loading ? (
+                    {loading || isSearching ? (
                       <div className="flex items-center gap-2">
                         <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
                         <span
@@ -1573,7 +1624,7 @@ export default function Home() {
                             darkMode ? "text-gray-400" : "text-gray-600"
                           }`}
                         >
-                          Loading...
+                          {isSearching ? "Searching..." : "Loading..."}
                         </span>
                       </div>
                     ) : (
@@ -1583,7 +1634,9 @@ export default function Home() {
                         } flex items-center gap-2`}
                       >
                         <BarChart3 className="w-4 h-4" />
-                        {totalPost} notes total
+                        {showSearchResults && searchResults.length > 0
+                          ? `${searchResults.length} search results`
+                          : `${totalPost} notes total`}
                       </div>
                     )}
                   </div>
@@ -1592,9 +1645,13 @@ export default function Home() {
 
               <div className="p-6">
                 <NotesSection
-                  data={data}
+                  data={
+                    showSearchResults && searchResults.length > 0
+                      ? searchResults
+                      : data
+                  }
                   user={user}
-                  loading={loading}
+                  loading={loading || isSearching}
                   onDelete={deletePost}
                   darkMode={darkMode}
                   viewMode={viewMode}
@@ -1605,7 +1662,7 @@ export default function Home() {
                 />
               </div>
 
-              {totalPages > 1 && (
+              {totalPages > 1 && !showSearchResults && (
                 <div
                   className={`px-6 py-4 border-t ${
                     darkMode
