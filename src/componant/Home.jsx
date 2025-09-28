@@ -48,6 +48,7 @@ import {
   Bookmark,
   Copy,
   ExternalLink,
+  Users,
   FileText,
   Archive,
   X,
@@ -1255,21 +1256,6 @@ export default function Home() {
                         <Settings className="w-4 h-4" />
                         Profile Settings
                       </button>
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          logout();
-                        }}
-                        disabled={isLoggingOut}
-                        className={`w-full px-4 py-2 text-sm text-left transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 disabled:opacity-50`}
-                      >
-                        {isLoggingOut ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <LogOut className="w-4 h-4" />
-                        )}
-                        {isLoggingOut ? "Signing Out..." : "Sign Out"}
-                      </button>
                     </div>
                   )}
                 </div>
@@ -1457,6 +1443,45 @@ export default function Home() {
             </div>
           </div>
         </header>
+
+        {/* Instant Sharing Feature Banner */}
+        <div
+          className={`${
+            darkMode
+              ? "bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-500/20"
+              : "bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200"
+          } border rounded-2xl p-4 mb-8 backdrop-blur-sm`}
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div>
+                <h3
+                  className={`text-lg font-semibold ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  New: Instant Collaborative Sharing
+                </h3>
+                <p
+                  className={`text-sm ${
+                    darkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
+                  Share and collaborate on code in real-time with your team
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/collab"
+              className={`px-6 py-2 bg-blue-500 ${
+                darkMode ? "text-white" : "text-white"
+              } rounded-lg font-medium   transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2`}
+            >
+              <Users className="w-4 h-4" />
+              Try Collab Mode
+            </Link>
+          </div>
+        </div>
 
         {/* Enhanced Note Creator */}
         {addNew && (
