@@ -10,8 +10,33 @@ import {
   Moon,
   Sun,
   Hash,
+  MessageSquare,
 } from "lucide-react";
 import { io } from "socket.io-client";
+
+const Spinner = () => (
+  <svg
+    className="animate-spin h-5 w-5 text-blue-500"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+);
+
 export default function CollabNotes() {
   const url = import.meta.env.VITE_SOC_URL;
   // Connection & Room Management
@@ -29,15 +54,22 @@ export default function CollabNotes() {
 
   // Note Content
   const [noteContent, setNoteContent] = useState(
-    '// Welcome to Real-time Collaborative Notes!\n// Start typing to share your code in real-time\n\nconsole.log("Hello, collaborative world!");'
+    '// Welcome to Collab Notes!\n// Enter a room ID to start collaborating in real-time.\n\nconsole.log("Hello, developer!");'
   );
 
   // Chat
-  const [showChat, setShowChat] = useState(false);
+  const [showChat, setShowChat] = useState(true);
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
 
-  const textareaRef = useRef(null);
+  const chatBodyRef = useRef(null);
+
+  // Auto-scroll chat to the bottom
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   useEffect(() => {
     const initSocket = async () => {
@@ -80,12 +112,12 @@ export default function CollabNotes() {
 
     socket.on("user_joined", ({ socketId, users }) => {
       setConnectedUsers(users.filter((id) => id !== socket.id));
-      showNotification(`User joined the room`);
+      showNotification(`A user joined the room`);
     });
 
     socket.on("user_left", ({ socketId, users }) => {
       setConnectedUsers(users.filter((id) => id !== socket.id));
-      showNotification(`User left the room`);
+      showNotification(`A user left the room`);
     });
 
     socket.on("note_update", ({ content, sender }) => {
@@ -165,10 +197,14 @@ export default function CollabNotes() {
       id: Date.now(),
       user: userId,
       message: chatMessage,
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     socket.emit("chat_message", { roomId: currentRoom, message });
+    setChatHistory((prev) => [...prev, message]);
     setChatMessage("");
   };
 
@@ -181,23 +217,26 @@ export default function CollabNotes() {
     }
   }, []);
 
+  const themeClass = darkMode ? "dark" : "";
+
+  // ===== Room Join Screen =====
   if (showRoomInput) {
     return (
       <div
-        className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        className={`${themeClass} min-h-screen ${
+          darkMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-800"
+        }`}
       >
-        <div className="flex items-center justify-center min-h-screen p-2 sm:p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
           <div
-            className={`w-full max-w-md p-4 sm:p-8 rounded-lg shadow-xl ${
+            className={`w-full max-w-md p-8 rounded-xl shadow-2xl transition-colors ${
               darkMode ? "bg-gray-800" : "bg-white"
             }`}
           >
-            {/* Header */}
             <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <Code className="w-8 h-8 text-blue-500" />
+              <div className="flex items-center justify-center gap-3 mb-2">
                 <h1
-                  className={`text-xl sm:text-2xl font-bold ${
+                  className={`text-3xl font-bold ${
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
@@ -205,44 +244,43 @@ export default function CollabNotes() {
                 </h1>
               </div>
               <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Real-time collaborative coding
+                Real-time collaborative note-taking
               </p>
             </div>
 
-            {/* Connection Status */}
             <div className="flex items-center justify-center gap-2 mb-6">
               <div
-                className={`w-3 h-3 rounded-full ${
-                  isConnected ? "bg-green-500" : "bg-red-500"
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
                 }`}
               />
               <span
-                className={`text-sm ${
+                className={`text-sm font-medium ${
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
                 {isConnected ? "Connected" : "Connecting..."}
               </span>
+              {!isConnected && <Spinner />}
             </div>
 
-            {/* Room Input */}
             <div className="space-y-4">
               <div className="relative">
                 <Hash
-                  className={`absolute left-3 top-3 w-5 h-5 ${
-                    darkMode ? "text-gray-400" : "text-gray-500"
+                  className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 ${
+                    darkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 />
                 <input
                   type="text"
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
-                  placeholder="Enter room ID"
-                  className={`w-full pl-12 pr-4 py-3 rounded-lg border text-base sm:text-lg ${
+                  placeholder="Enter or create a Room ID"
+                  className={`w-full pl-12 pr-4 py-3 rounded-lg border text-base transition-all ${
                     darkMode
-                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  } focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500"
+                      : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500"
+                  } focus:ring-2 focus:border-transparent outline-none`}
                   onKeyPress={(e) => e.key === "Enter" && joinRoom()}
                 />
               </div>
@@ -250,72 +288,66 @@ export default function CollabNotes() {
               <button
                 onClick={joinRoom}
                 disabled={!roomId.trim() || !isConnected}
-                className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
+                className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 Join Room
               </button>
 
               <button
                 onClick={() => setRoomId(`room_${Date.now()}`)}
-                className={`w-full text-sm ${
+                className={`w-full text-sm font-medium ${
                   darkMode
                     ? "text-blue-400 hover:text-blue-300"
                     : "text-blue-600 hover:text-blue-700"
-                }`}
+                } transition-colors`}
               >
-                Generate Random Room
-              </button>
-            </div>
-
-            {/* Theme Toggle */}
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`p-3 rounded-lg ${
-                  darkMode
-                    ? "bg-gray-700 text-yellow-400"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {darkMode ? (
-                  <Sun className="w-5 h-5" />
-                ) : (
-                  <Moon className="w-5 h-5" />
-                )}
+                or Generate a Random Room
               </button>
             </div>
           </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`fixed top-4 right-4 p-3 rounded-full transition-colors ${
+              darkMode
+                ? "bg-gray-800 text-yellow-400 hover:bg-gray-700"
+                : "bg-white text-gray-600 hover:bg-gray-200"
+            }`}
+            title="Toggle Theme"
+          >
+            {darkMode ? (
+              <Sun className="w-6 h-6" />
+            ) : (
+              <Moon className="w-6 h-6" />
+            )}
+          </button>
         </div>
-
-        {/* Notification */}
-        {notification && (
-          <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg">
-            {notification}
-          </div>
-        )}
       </div>
     );
   }
 
+  // ===== Main Editor Screen =====
   return (
-    <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+    <div
+      className={`${themeClass} flex flex-col h-screen ${
+        darkMode ? "bg-gray-900 text-gray-300" : "bg-gray-100 text-gray-800"
+      }`}
+    >
       {/* Header */}
-      <div
-        className={`${darkMode ? "bg-gray-800" : "bg-white"} border-b ${
-          darkMode ? "border-gray-700" : "border-gray-200"
-        }`}
+      <header
+        className={`flex-shrink-0 border-b ${
+          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+        } shadow-sm`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-4">
-              <Code className="w-6 h-6 text-blue-500" />
               <div>
                 <h1
                   className={`text-lg font-bold ${
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  Room: {currentRoom}
+                  Room: <span className="text-blue-400">{currentRoom}</span>
                 </h1>
                 <p
                   className={`text-sm ${
@@ -330,54 +362,55 @@ export default function CollabNotes() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowChat(!showChat)}
-                className={`px-3 py-2 rounded-lg ${
+                title={showChat ? "Hide Chat" : "Show Chat"}
+                className={`p-2 rounded-lg transition-colors ${
                   showChat
                     ? "bg-blue-500 text-white"
                     : darkMode
-                    ? "bg-gray-700 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gray-700 hover:bg-gray-600"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
-                Chat
+                <MessageSquare className="w-5 h-5" />
               </button>
-
               <button
                 onClick={() => setIsPreview(!isPreview)}
-                className={`p-2 rounded-lg ${
+                title={isPreview ? "Show Editor" : "Show Preview"}
+                className={`p-2 rounded-lg transition-colors ${
                   isPreview
                     ? "bg-blue-500 text-white"
                     : darkMode
-                    ? "bg-gray-700 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gray-700 hover:bg-gray-600"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
                 <Eye className="w-5 h-5" />
               </button>
-
               <button
                 onClick={copyToClipboard}
-                className={`p-2 rounded-lg ${
+                title="Copy Code"
+                className={`p-2 rounded-lg transition-colors ${
                   darkMode
-                    ? "bg-gray-700 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gray-700 hover:bg-gray-600"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
                 <Copy className="w-5 h-5" />
               </button>
-
               <button
                 onClick={shareRoom}
-                className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                title="Share Room Link"
+                className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
               >
                 <Share className="w-5 h-5" />
               </button>
-
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className={`p-2 rounded-lg ${
+                title="Toggle Theme"
+                className={`p-2 rounded-lg transition-colors ${
                   darkMode
-                    ? "bg-gray-700 text-yellow-400"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gray-700 text-yellow-400 hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 {darkMode ? (
@@ -386,169 +419,174 @@ export default function CollabNotes() {
                   <Moon className="w-5 h-5" />
                 )}
               </button>
-
               <button
                 onClick={leaveRoom}
-                className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                title="Leave Room"
+                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-2 sm:p-4">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          {/* Editor */}
-          <div className={showChat ? "lg:col-span-2" : "lg:col-span-3"}>
-            <div
-              className={`$${
-                darkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg shadow-lg overflow-hidden flex flex-col h-[50vh] sm:h-96`}
-            >
-              {isPreview ? (
-                <pre
-                  className={`p-2 sm:p-4 overflow-auto flex-1 text-xs sm:text-sm font-mono ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                  style={{ minWidth: 0 }}
-                >
-                  {noteContent}
-                </pre>
-              ) : (
-                <textarea
-                  ref={textareaRef}
-                  value={noteContent}
-                  onChange={(e) => handleNoteChange(e.target.value)}
-                  className={`w-full flex-1 min-h-[120px] h-full p-2 sm:p-4 font-mono text-xs sm:text-sm resize-none outline-none ${
-                    darkMode
-                      ? "bg-gray-800 text-white"
-                      : "bg-white text-gray-900"
-                  }`}
-                  placeholder="Start typing your code here..."
-                  style={{ minWidth: 0 }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Users Panel */}
-          <div className="lg:col-span-1 mt-4 lg:mt-0">
-            <div
-              className={`$${
-                darkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg shadow-lg p-3 sm:p-4`}
-            >
-              <h3
-                className={`font-bold mb-4 flex items-center gap-2 ${
-                  darkMode ? "text-white" : "text-gray-900"
+      <main className="flex-1 container mx-auto p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
+        {/* Editor */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div
+            className={`rounded-lg shadow-lg flex-1 flex flex-col overflow-hidden ${
+              darkMode ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            {isPreview ? (
+              <pre
+                className={`p-4 overflow-auto flex-1 text-sm font-mono ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                <Users className="w-5 h-5" />
-                Users ({connectedUsers.length + 1})
-              </h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                <code>{noteContent}</code>
+              </pre>
+            ) : (
+              <textarea
+                value={noteContent}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                className={`w-full h-full p-4 font-mono text-sm resize-none outline-none ${
+                  darkMode
+                    ? "bg-gray-800 text-white placeholder-gray-500"
+                    : "bg-white text-gray-900 placeholder-gray-400"
+                }`}
+                placeholder="Start typing your code here..."
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 flex flex-col gap-4">
+          {/* Users Panel */}
+          <div
+            className={`rounded-lg shadow-lg p-4 ${
+              darkMode ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <h3
+              className={`font-bold mb-3 flex items-center gap-2 text-lg ${
+                darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              Users ({connectedUsers.length + 1})
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 bg-green-400 rounded-full" />
+                <span
+                  className={`font-medium ${
+                    darkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  You
+                </span>
+              </div>
+              {connectedUsers.map((user, index) => (
+                <div key={user} className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 bg-blue-400 rounded-full" />
                   <span
                     className={`text-sm ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
+                      darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    You
+                    User {index + 1}
                   </span>
                 </div>
-                {connectedUsers.map((user, index) => (
-                  <div key={user} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                    <span
-                      className={`text-sm ${
-                        darkMode ? "text-gray-300" : "text-gray-700"
-                      }`}
-                    >
-                      User {index + 1}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Chat Panel */}
           {showChat && (
-            <div className="lg:col-span-1 mt-4 lg:mt-0">
-              <div
-                className={`$${
-                  darkMode ? "bg-gray-800" : "bg-white"
-                } rounded-lg shadow-lg flex flex-col h-[35vh] sm:h-96`}
+            <div
+              className={`rounded-lg shadow-lg flex flex-col flex-1 min-h-[200px] lg:min-h-0 ${
+                darkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
+              <h3
+                className={`font-bold p-4 border-b text-lg ${
+                  darkMode
+                    ? "text-white border-gray-700"
+                    : "text-gray-900 border-gray-200"
+                }`}
               >
-                <div className="p-3 sm:p-4 border-b border-gray-700">
-                  <h3
-                    className={`font-bold ${
-                      darkMode ? "text-white" : "text-gray-900"
+                Chat
+              </h3>
+              <div
+                ref={chatBodyRef}
+                className="flex-1 p-4 overflow-y-auto space-y-4"
+              >
+                {chatHistory.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex flex-col ${
+                      msg.user === userId ? "items-end" : "items-start"
                     }`}
                   >
-                    Chat
-                  </h3>
-                </div>
-
-                <div className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-2">
-                  {chatHistory.map((msg) => (
-                    <div key={msg.id} className="text-sm">
-                      <span
-                        className={`font-medium ${
-                          msg.user === userId
-                            ? "text-blue-500"
-                            : darkMode
-                            ? "text-gray-300"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {msg.user === userId ? "You" : "User"}:
-                      </span>
-                      <span
-                        className={`ml-2 ${
-                          darkMode ? "text-gray-400" : "text-gray-600"
-                        }`}
-                      >
-                        {msg.message}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-3 sm:p-4 border-t border-gray-700">
-                  <div className="flex gap-2 flex-col sm:flex-row">
-                    <input
-                      type="text"
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      placeholder="Type a message..."
-                      className={`flex-1 px-2 py-2 sm:px-3 sm:py-2 rounded border text-xs sm:text-sm ${
-                        darkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
+                    <div
+                      className={`px-3 py-2 rounded-lg max-w-xs ${
+                        msg.user === userId
+                          ? "bg-blue-600 text-white"
+                          : darkMode
+                          ? "bg-gray-700 text-gray-200"
+                          : "bg-gray-200 text-gray-800"
                       }`}
-                      onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
-                    />
-                    <button
-                      onClick={sendChatMessage}
-                      className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full sm:w-auto mt-2 sm:mt-0"
                     >
-                      <Send className="w-4 h-4" />
-                    </button>
+                      <p className="text-sm">{msg.message}</p>
+                    </div>
+                    <span
+                      className={`text-xs mt-1 ${
+                        darkMode ? "text-gray-500" : "text-gray-400"
+                      }`}
+                    >
+                      {msg.user === userId ? "You" : `User`} - {msg.timestamp}
+                    </span>
                   </div>
+                ))}
+              </div>
+              <div
+                className={`p-4 border-t ${
+                  darkMode ? "border-gray-700" : "border-gray-200"
+                }`}
+              >
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className={`flex-1 px-3 py-2 rounded-lg border text-sm outline-none transition-all ${
+                      darkMode
+                        ? "bg-gray-700 border-gray-600 text-white focus:ring-blue-500"
+                        : "bg-white border-gray-300 text-gray-900 focus:ring-blue-500"
+                    } focus:ring-2 focus:border-transparent`}
+                    onKeyPress={(e) => e.key === "Enter" && sendChatMessage()}
+                  />
+                  <button
+                    onClick={sendChatMessage}
+                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </aside>
+      </main>
 
+      {/* Notification */}
       {notification && (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg">
+        <div className="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl animate-fade-in-up">
           {notification}
         </div>
       )}
