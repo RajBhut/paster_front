@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { io } from "socket.io-client";
 
+// A simple spinner component for loading states
 const Spinner = () => (
   <svg
     className="animate-spin h-5 w-5 text-blue-500"
@@ -126,8 +127,12 @@ export default function CollabNotes() {
       }
     });
 
+    // This listener handles receiving messages from others
     socket.on("chat_message", (message) => {
-      setChatHistory((prev) => [...prev, message]);
+      // Prevent adding message if it's from the current user and was already added optimistically
+      if (message.user !== userId) {
+        setChatHistory((prev) => [...prev, message]);
+      }
     });
 
     return () => {
@@ -139,7 +144,7 @@ export default function CollabNotes() {
       socket.off("note_update");
       socket.off("chat_message");
     };
-  }, [socket]);
+  }, [socket, userId]);
 
   const showNotification = (message) => {
     setNotification(message);
@@ -203,6 +208,9 @@ export default function CollabNotes() {
       }),
     };
 
+    // **FIX**: Emit to server and only update local state here (optimistic update)
+    // The server should be configured NOT to broadcast back to the sender.
+    // If it does, we handle it in the `socket.on` listener.
     socket.emit("chat_message", { roomId: currentRoom, message });
     setChatHistory((prev) => [...prev, message]);
     setChatMessage("");
@@ -235,6 +243,7 @@ export default function CollabNotes() {
           >
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-3 mb-2">
+                <Code className="w-9 h-9 text-blue-500" />
                 <h1
                   className={`text-3xl font-bold ${
                     darkMode ? "text-white" : "text-gray-900"
@@ -341,6 +350,7 @@ export default function CollabNotes() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-4">
+              <Code className="w-7 h-7 text-blue-500" />
               <div>
                 <h1
                   className={`text-lg font-bold ${
@@ -431,10 +441,14 @@ export default function CollabNotes() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 container mx-auto p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
-        {/* Editor */}
-        <div className="flex-1 flex flex-col min-h-0">
+      {/* Main Content Area */}
+      <main className="flex-1 container mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden">
+        {/* Editor Panel: Spans more width when chat is hidden */}
+        <div
+          className={`flex flex-col min-h-0 transition-all duration-300 ${
+            showChat ? "lg:col-span-7" : "lg:col-span-9"
+          }`}
+        >
           <div
             className={`rounded-lg shadow-lg flex-1 flex flex-col overflow-hidden ${
               darkMode ? "bg-gray-800" : "bg-white"
@@ -463,8 +477,12 @@ export default function CollabNotes() {
           </div>
         </div>
 
-        {/* Sidebar */}
-        <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0 flex flex-col gap-4">
+        {/* Sidebar: Contains Users and Chat */}
+        <div
+          className={`flex flex-col gap-4 min-h-0 transition-all duration-300 ${
+            showChat ? "lg:col-span-5" : "lg:col-span-3"
+          }`}
+        >
           {/* Users Panel */}
           <div
             className={`rounded-lg shadow-lg p-4 ${
@@ -498,14 +516,14 @@ export default function CollabNotes() {
                       darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    User {index + 1}
+                    User #{index + 2}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Chat Panel */}
+          {/* Chat Panel: Conditionally rendered */}
           {showChat && (
             <div
               className={`rounded-lg shadow-lg flex flex-col flex-1 min-h-[200px] lg:min-h-0 ${
@@ -581,7 +599,7 @@ export default function CollabNotes() {
               </div>
             </div>
           )}
-        </aside>
+        </div>
       </main>
 
       {/* Notification */}
