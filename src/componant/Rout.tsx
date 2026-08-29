@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Loginc from "./Loginc";
 import Home from "./Home";
 import Page from "./Page";
