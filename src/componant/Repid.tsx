@@ -52,6 +52,11 @@ export default function CollabNotes() {
   const chatBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("darkMode", String(darkMode));
+  }, [darkMode]);
+
+  useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }

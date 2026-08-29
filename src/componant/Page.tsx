@@ -73,7 +73,10 @@ export default function Page() {
   const is_upvoted = upvoteData?.userupvote ?? false;
   const isOwner = !!(user && note && note.authorId === user.id);
 
-  useEffect(() => { localStorage.setItem("darkMode", String(darkMode)); }, [darkMode]);
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("darkMode", String(darkMode));
+  }, [darkMode]);
   useEffect(() => { if (!user) navigate("/"); }, [user, navigate]);
   useEffect(() => {
     if (note && (note as unknown as { message?: string }).message) navigate("/home");
@@ -90,9 +93,48 @@ export default function Page() {
   }, [note]);
 
   if (isLoading || !note) {
+    const dim = darkMode;
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? "bg-gray-950" : "bg-surface-1"}`}>
-        <Loader2 className="w-5 h-5 animate-spin text-ink-4" />
+      <div className={`min-h-screen flex flex-col ${dim ? "bg-gray-950 text-gray-100" : "bg-surface-1 text-ink"}`}>
+        {/* Toolbar Skeleton */}
+        <header className={`toolbar ${dim ? "bg-gray-900 border-gray-800" : ""}`}>
+          <div className="flex items-center gap-2 w-full max-w-sm">
+            <div className="w-16 h-4 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-3 h-3 bg-surface-3 dark:bg-gray-800 rounded-full animate-pulse" />
+            <div className="w-32 h-4 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="w-8 h-8 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-8 h-8 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-8 h-8 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+          </div>
+        </header>
+
+        {/* Meta Bar Skeleton */}
+        <div className={`px-5 py-3 border-b flex flex-wrap items-center gap-x-5 gap-y-1.5 ${dim ? "border-gray-800 bg-gray-900" : "border-border bg-surface-0"}`}>
+          <div className="flex items-center gap-2">
+            <div className="w-24 h-4 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-24 h-4 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+          </div>
+          <div className="flex items-center gap-1 ml-auto">
+            <div className="w-12 h-6 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-6 h-6 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+            <div className="w-6 h-6 bg-surface-3 dark:bg-gray-800 rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Code Content Skeleton */}
+        <div className="p-4 flex-1 overflow-auto">
+          <div className="rounded-md border border-border dark:border-gray-700 bg-surface-0 dark:bg-gray-900 p-5 space-y-3">
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-1/3 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-1/2 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-2/3 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-3/4 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-1/2 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-5/6 animate-pulse" />
+            <div className="h-4 bg-surface-2 dark:bg-gray-850 rounded w-2/3 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
