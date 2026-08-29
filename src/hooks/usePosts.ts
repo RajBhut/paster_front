@@ -20,7 +20,6 @@ export function usePostsQuery(page = 1) {
     queryKey: postKeys.list(page),
     queryFn: () => postsApi.getPosts(page),
     staleTime: 1000 * 60 * 2, // 2 min
-    placeholderData: (prev) => prev,
   });
 }
 

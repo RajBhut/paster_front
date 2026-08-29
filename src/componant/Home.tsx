@@ -589,7 +589,7 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const { data: postsData, isLoading } = usePostsQuery(currentPage);
+  const { data: postsData, isLoading, isFetching } = usePostsQuery(currentPage);
   const { data: searchResults = [], isFetching: isSearching } = useSearchQuery(debouncedQ);
   const deletePostMutation = useDeletePost(currentPage);
   const logoutMutation = useLogout();
@@ -821,7 +821,7 @@ export default function Home() {
                   {totalPosts > 0 ? `${totalPosts} note${totalPosts !== 1 ? "s" : ""}` : "Notes"}
                 </span>
               )}
-              {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-4 dark:text-gray-500" />}
+              {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-ink-4 dark:text-gray-500" />}
             </div>
 
             <div className="flex items-center gap-1">
